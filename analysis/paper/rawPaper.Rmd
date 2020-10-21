@@ -1,0 +1,219 @@
+---
+title: "rawPaper"
+author: Sheila RM
+date: today
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{bash, eval = FALSE}
+---
+
+# this is the preamble
+```
+
+## Abstract
+
+Keywords: 
+
+
+## Introduction
+
+
+## Materials and Methods
+1- text here
+
+Tetis (19–28 mm standard length) were collected 400 m from the river mouth of Río Yumurí (Figure 1), eastern Cuba, in December, 2018. Samples were collected using hand nets (1 mm mesh size) 2 m from the riverbank. Specimens were anesthetized using MS 222 (Tricaine Methanesulphonate) and immediately preserved in 80% ethanol. Voucher specimens were deposited in the collection of the Acuario Nacional de Cuba (catalog number: ). 
+
+2- map 
+
+```{r, echo=FALSE}
+chunk for generating the map.
+```
+
+3- text for dna extraction
+
+Total DNA was extracted from caudal peduncle muscle tissues using the DNAeasy tissue kit (QIAGEN). Partial sequences of the mitochondrial gene cytochrome oxidase I (COI) were amplified through the polymerase chain reaction in 20 μL of reaction volume (one unit of GoTaq DNA polymerase-Promega, 0.2 nM of each primer, 0.2 μM dNTPs, and 1.5 mM MgCl2) following Lara et al. (2010). We used the primers COIf (5´-AAYCAYAAAGAYGGYACCCT-3´) and COIr (3´-CCTCNGGRTGNCCRAAGAAYCA-5´) (Palumbi et al., 1991).  
+
+PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affymetrix Inc./ USB, Cleveland, OH, USA), and then sequenced on an ABI 3100 automated sequencer (Applied Biosystems). Raw sequence files were edited and aligned with the software Geneious v.9.1 (Kearse et al., 2012), and submitted to GenBank database (accession numbers #####). We used all Sicydium sequences available in GenBank as reference for recovering the taxonomic identity of the tetis. Sequences with missing data and/or carrying the same haplotype were excluded. Sequences of Awaous banana and A. ocellaris were used as outgroup. See Appendix 1 for a detailed list of species and GenBank accession numbers.
+
+```{r, echo=FALSE}
+
+# reading the sequences recovered during this paper
+
+SycidiumCuba <- NA
+                                                       # DOWNLOADING SEQS FROM GENBANK
+
+# this package provides an R interface NCBI API and allows to search databases like GenBank (http://www.ncbi.nih.gov/genbank/) 
+install.packages('rentrez')
+library(rentrez)
+
+# checking/setting working directory as raw_data for storing the final fasta file, which are the sequences before aligning them in the next chunk 
+getwd()
+# setwd is temporal, after fishining this chunk, the wd will be again /analysis/paper
+setwd("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data")
+
+
+Sicydium_COI <- "Sicydium[Organism] AND COI[Gene]"
+
+# I set retmax=580 because after running this by default, I got a message with the number of hits (580 in this case)
+Sicydium_COI_search <- entrez_search(db = "nuccore", term = Sicydium_COI, retmax = 580)
+
+# given that the search is too big for the system, it needs be split in two smaller one
+Sicydium_COI_seqs1 <- entrez_fetch(db = "nuccore", id = Sicydium_COI_search$ids[0:295], rettype = "fasta")
+Sicydium_COI_seqs2 <- entrez_fetch(db = "nuccore", id = Sicydium_COI_search$ids[296:580], rettype = "fasta")
+
+# GETTING OUTGROUP SEQUENCES OF AWAOUS BANANA (2) AND A. OCELLARIS (2)
+
+Awaous_bananaCOI <- "Awaous_banana[Organism] AND COI[Gene]"
+Awaous_bananaCOI_search <- entrez_search(db = "nuccore", term = Awaous_bananaCOI, retmax = 2)
+Awaous_bananaCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_bananaCOI_search$ids, rettype = "fasta")
+
+Awaous_ocellarisCOI <- "Awaous_ocellaris[Organism] AND COI[Gene]"
+Awaous_ocellarisCOI_search <- entrez_search(db = "nuccore", term = Awaous_ocellarisCOI, retmax = 2)
+Awaous_ocellarisCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_ocellarisCOI_search$ids, rettype = "fasta")
+
+# storing ALL sequences in a single fasta file
+write(Sicydium_COI_seqs1, "Sicydium_COI_seqs.fasta", sep = "\n")
+write(Sicydium_COI_seqs2, "Sicydium_COI_seqs.fasta", sep = "\n", append = TRUE)   # by setting 'append = TRUE', I can keep adding seqs
+write(Awaous_bananaCOI_seqs, "Sicydium_COI_seqs.fasta", sep = "\n", append = TRUE)
+write(Awaous_ocellarisCOI_seqs, "Sicydium_COI_seqs.fasta", sep = "\n", append = TRUE)
+
+
+                                                   # RENAMING SEQS AND SAVING THEM IN A NEW FASTA FILE
+
+# installing necessary package for sequence manipulation
+install.packages('seqinr')
+library(seqinr)
+
+# reading the file and renaming the sequences
+Sicydium_COI_seqinrFormat <- read.fasta(file = "Sicydium_COI_seqs.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+
+Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name")      # editting species name
+Sicydium_COI_names <- gsub("\\..*", "", Sicydium_COI_names)        # eliminating characters after "." using gsub
+Sicydium_COI_names <- gsub("^.*\\|", "", Sicydium_COI_names)       # eliminating characters before "|" using gsub
+
+
+# installing necessary package
+install.packages("ape")
+library(ape)
+
+Sicydium_COI_apeFormat <- read.GenBank(Sicydium_COI_names)         # this line takes a few minutes to run
+
+#attr(Sicydium_COI_apeFormat, "species")
+#names(Sicydium_COI_apeFormat)
+
+# creating a vector (to be added as name of the seqs) with the species, GenBank accession number, and type of gene
+Sicydium_COI_GenBank_Ids <- paste(attr(Sicydium_COI_apeFormat, "species"), names(Sicydium_COI_apeFormat), sep = "_COI_")
+
+# writing a new fasta file using the vector above 
+write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_Ids, nbchar = 10, file.out = "Sicydium_COI_seqinrFormat.fasta")
+
+
+                                            # ALIGNNIG/EDITTING SEQS AND GETTING THEM ALL READY FOR PHYLOGENETICS
+
+# removing all sequences without a complete scientific name, that is, those with 'sp.'
+fastafile <- read.fasta(file = "Sicydium_COI_seqinrFormat.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+
+getNames <- strsplit(names(fastafile), '_')         # creating a vector splitting species names
+removeSeqs <- c("sp.")                              # finding names to remove: indexes which are in the species to be removed
+keepSeqs <- which(! getNames %like% removeSeqs)     # selection those without specific name in them
+
+# saving a new fasta file with only those seqs with full scientific names
+write.fasta(sequences=fastafile[keepSeqs], names=names(fastafile)[keepSeqs], file.out="Sicydium_COI_edits.fasta")
+
+  
+
+
+```
+
+9- text for phylogenetic analyses
+
+The partition scheme and nucleotide substitution model that best fitted the data was estimated using PartitionFinder 2 (Lanfear et al., 2016). The phylogenetic tree was reconstructed using the Bayesian approach using MrBayes 3.2.7a (Ronquist et al., 2012) as implemented in CIPRES (Miller et al., 2010). The Bayesian inference was based on two independent runs using four Monte Carlo Markov chains for 20 x 106 generations, with sampling every 10,000 generations. The first 25% of the sampled trees were discarded as burn-in. 
+
+
+
+```{r, echo=FALSE}
+
+#getting all packages and libraries
+#install.packages("modelTest")
+#install.packages("ape")
+#library(ape)
+
+
+
+# reading the file again, only if necessary
+var1 <- read.dna(sequences already alignned, format = 'fasta')    # format = can be sequential, interleaved, clustal
+                                                                  # as.character = TRUE/FALSE, default is class DNAbin
+
+# the alternatie is var1 = read.FASTA = (sequences, type = 'DNA')
+
+#getting the class used by modelTest: phyDat or pml
+var2 <- phyDat(var1, type = "DNA", levels = NULL)
+
+# getting the best model
+var3 <- modelTest(var2, tree = NULL, model = "all", multicore = TRUE, mc.cores = 2)
+
+# getting the AICc for each competing model
+# visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
+print(var3)
+
+# storing the best model
+var4 <- dist.ml(var3, model = "uno d esos")
+
+# the alternative is to get automatically the first model from the data.frame modelTest gives and storing it as a variable...
+
+
+```
+
+
+
+10- Results
+
+
+
+
+
+
+```{r, echo=FALSE}
+
+chunk for building the tree and store it as a figure
+
+
+```
+
+
+11- Discussion
+
+
+
+
+
+12- Acknowledgments 
+
+Habitat 
+
+stri 
+
+13- References 
+
+
+
+
+
+
+
+
+
+
+
+
