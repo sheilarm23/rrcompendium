@@ -124,12 +124,12 @@ write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_
 # removing all sequences without a complete scientific name, that is, those with 'sp.'
 fastafile <- read.fasta(file = "Sicydium_COI_seqinrFormat.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 
-getNames <- strsplit(names(fastafile), '_')         # creating a vector splitting species names
-removeSeqs <- c("sp.")                              # finding names to remove: indexes which are in the species to be removed
-keepSeqs <- which(! getNames %like% removeSeqs)     # selection those without specific name in them
+fastaNames <- strsplit(names(fastafile), '_')                  # creating a vector splitting species names
+incompleteNames <- c("sp.")                                    # finding names to remove: indexes which are in the species to be removed
+completeSeqs <- which(! fastaNames %like% incompleteNames)     # selection those without specific name in them
 
 # saving a new fasta file with only those seqs with full scientific names
-write.fasta(sequences=fastafile[keepSeqs], names=names(fastafile)[keepSeqs], file.out="Sicydium_COI_edits.fasta")
+write.fasta(sequences=fastafile[completeSeqs], names=names(fastafile)[completeSeqs], file.out="Sicydium_COI_edits.fasta")
 
   
 
