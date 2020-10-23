@@ -37,7 +37,16 @@ Tetis (19–28 mm standard length) were collected 400 m from the river mouth of 
 2- map 
 
 ```{r, echo=FALSE}
-chunk for generating the map.
+#chunk for generating the MAP.
+
+install.packages("maps")
+install.packages("mapdata")
+
+library(maps)
+library(mapdata)
+map("worldHires","Cuba", xlim=c(-88,-73), ylim=c(19,24), col="gray95", fill=TRUE)
+
+
 ```
 
 3- text for dna extraction
@@ -58,10 +67,10 @@ install.packages('rentrez')
 library(rentrez)
 
 # checking/setting working directory as raw_data for storing the final fasta file, which are the sequences before aligning them in the next chunk 
-getwd()
+#getwd()
 # setwd is temporal, after fishining this chunk, the wd will be again /analysis/paper
-setwd("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data")
-
+#setwd("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data")
+#getwd()
 
 Sicydium_COI <- "Sicydium[Organism] AND COI[Gene]"
 
@@ -83,10 +92,10 @@ Awaous_ocellarisCOI_search <- entrez_search(db = "nuccore", term = Awaous_ocella
 Awaous_ocellarisCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_ocellarisCOI_search$ids, rettype = "fasta")
 
 # storing ALL sequences in a single fasta file
-write(Sicydium_COI_seqs1, "Sicydium_COI_seqs.fasta", sep = "\n")
-write(Sicydium_COI_seqs2, "Sicydium_COI_seqs.fasta", sep = "\n", append = TRUE)   # by setting 'append = TRUE', I can keep adding seqs
-write(Awaous_bananaCOI_seqs, "Sicydium_COI_seqs.fasta", sep = "\n", append = TRUE)
-write(Awaous_ocellarisCOI_seqs, "Sicydium_COI_seqs.fasta", sep = "\n", append = TRUE)
+write(Sicydium_COI_seqs1, file="../data/raw_data/Sicydium_COI_seqs.fasta", sep = "\n")
+write(Sicydium_COI_seqs2, file="../data/raw_data/Sicydium_COI_seqs.fasta", sep = "\n", append = TRUE)   # 'append = TRUE', I can keep adding seqs
+write(Awaous_bananaCOI_seqs, file="../data/raw_data/Sicydium_COI_seqs.fasta", sep = "\n", append = TRUE)
+write(Awaous_ocellarisCOI_seqs, file="../data/raw_data/Sicydium_COI_seqs.fasta", sep = "\n", append = TRUE)
 
 
                                                    # RENAMING SEQS AND SAVING THEM IN A NEW FASTA FILE
@@ -96,7 +105,7 @@ install.packages('seqinr')
 library(seqinr)
 
 # reading the file and renaming the sequences
-Sicydium_COI_seqinrFormat <- read.fasta(file = "Sicydium_COI_seqs.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+Sicydium_COI_seqinrFormat <- read.fasta(file ="../data/raw_data/Sicydium_COI_seqs.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 
 Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name")      # editting species name
 Sicydium_COI_names <- gsub("\\..*", "", Sicydium_COI_names)        # eliminating characters after "." using gsub
@@ -115,23 +124,49 @@ Sicydium_COI_apeFormat <- read.GenBank(Sicydium_COI_names)         # this line t
 # creating a vector (to be added as name of the seqs) with the species, GenBank accession number, and type of gene
 Sicydium_COI_GenBank_Ids <- paste(attr(Sicydium_COI_apeFormat, "species"), names(Sicydium_COI_apeFormat), sep = "_COI_")
 
-# writing a new fasta file using the vector above 
-write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_Ids, nbchar = 10, file.out = "Sicydium_COI_seqinrFormat.fasta")
+# writing a new fasta file (2nd) using the vector above 
+write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_Ids, nbchar = 10, file.out = "../data/raw_data/Sicydium_COI_seqinrFormat")
 
 
                                             # ALIGNNIG/EDITTING SEQS AND GETTING THEM ALL READY FOR PHYLOGENETICS
 
-# removing all sequences without a complete scientific name, that is, those with 'sp.'
-fastafile <- read.fasta(file = "Sicydium_COI_seqinrFormat.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+### Removing sequences of incomplete/unspecific NAMES; that is, those with 'sp.'
+nameFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_seqinrFormat", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 
-fastaNames <- strsplit(names(fastafile), '_')                  # creating a vector splitting species names
-incompleteNames <- c("sp.")                                    # finding names to remove: indexes which are in the species to be removed
-completeSeqs <- which(! fastaNames %like% incompleteNames)     # selection those without specific name in them
+fastaNames <- strsplit(names(nameFasta), '_')                  # creating a vector splitting species names
+completeSeqs <- which(! grepl("sp.", fastaNames))              # selecting those with specific name in them       # 562
 
-# saving a new fasta file with only those seqs with full scientific names
-write.fasta(sequences=fastafile[completeSeqs], names=names(fastafile)[completeSeqs], file.out="Sicydium_COI_edits.fasta")
+# writing a new fasta (3rd) file with only those seqs with full scientific names
+write.fasta(sequences = nameFasta[completeSeqs], names = names(nameFasta)[completeSeqs], file.out = "../data/raw_data/Sicydium_COI_names.fasta")
 
-  
+
+### Removing sequences of LENGTH shorter than 600 pb, given that the gene COI has between 627 and 658 bp.
+lengthFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_names.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+fastaLength <- lengthFasta[which(getLength(lengthFasta) >= 600)]       # 399
+write.fasta(sequences = fastaLength, names = names(fastaLength), file.out = "../data/raw_data/Sicydium_COI_lengths.fasta")
+
+### Aligning the sequences
+
+BiocManager::install("msa")
+library(msa)
+
+alignmentFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_lengths.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+
+length(alignmentFasta)
+
+myClustalOmegaAlignment <- msa("alignmentFasta", type = "DNA", "ClustalOmega")
+
+print(myClustalOmegaAlignment, showConsensus=FALSE, halfNrow=3)
+print(myClustalOmegaAlignment, showNames=FALSE, show="complete")
+
+
+
+### Removing most duplicated sequences
+
+### Removing the segment before the start codon TAC
+
+
+
 
 
 ```
