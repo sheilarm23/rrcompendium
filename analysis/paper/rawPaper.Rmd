@@ -57,20 +57,26 @@ PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affym
 
 ```{r, echo=FALSE}
 
-# reading the sequences recovered during this paper
+                                                      # INSTALLING PACKAGES AND LIBRARIES - if needed
+packages = c("rentrez", "ape", "seqinr", "BiocManager", "msa")
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
 
-SycidiumCuba <- NA
+#if (!requireNamespace("BiocManager", quietly=TRUE))
+#install.packages("BiocManager")
+#BiocManager::install("msa")
+
                                                        # DOWNLOADING SEQS FROM GENBANK
 
-# this package provides an R interface NCBI API and allows to search databases like GenBank (http://www.ncbi.nih.gov/genbank/) 
-install.packages('rentrez')
-library(rentrez)
-
-# checking/setting working directory as raw_data for storing the final fasta file, which are the sequences before aligning them in the next chunk 
-#getwd()
-# setwd is temporal, after fishining this chunk, the wd will be again /analysis/paper
-#setwd("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data")
-#getwd()
+# rentrez: this package provides an R interface NCBI API and allows to search databases like GenBank (http://www.ncbi.nih.gov/genbank/) 
+library(rentrez)     # delete this line after finishing
 
 Sicydium_COI <- "Sicydium[Organism] AND COI[Gene]"
 
@@ -88,7 +94,7 @@ Awaous_bananaCOI_search <- entrez_search(db = "nuccore", term = Awaous_bananaCOI
 Awaous_bananaCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_bananaCOI_search$ids, rettype = "fasta")
 
 Awaous_ocellarisCOI <- "Awaous_ocellaris[Organism] AND COI[Gene]"
-Awaous_ocellarisCOI_search <- entrez_search(db = "nuccore", term = Awaous_ocellarisCOI, retmax = 2)
+Awaous_ocellarisCOI_search <- entrez_search(db = "nuccore", term = Awaous_ocellarisCOI, retmax = 4)
 Awaous_ocellarisCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_ocellarisCOI_search$ids, rettype = "fasta")
 
 # storing ALL sequences in a single fasta file
@@ -100,21 +106,19 @@ write(Awaous_ocellarisCOI_seqs, file="../data/raw_data/Sicydium_COI_seqs.fasta",
 
                                                    # RENAMING SEQS AND SAVING THEM IN A NEW FASTA FILE
 
-# installing necessary package for sequence manipulation
-install.packages('seqinr')
-library(seqinr)
+# seqinr: package for sequence manipulation 
+
+library(seqinr)     # delete this line after finishing
 
 # reading the file and renaming the sequences
 Sicydium_COI_seqinrFormat <- read.fasta(file ="../data/raw_data/Sicydium_COI_seqs.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 
-Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name")      # editting species name
+Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name")      # editing species name
 Sicydium_COI_names <- gsub("\\..*", "", Sicydium_COI_names)        # eliminating characters after "." using gsub
 Sicydium_COI_names <- gsub("^.*\\|", "", Sicydium_COI_names)       # eliminating characters before "|" using gsub
 
 
-# installing necessary package
-install.packages("ape")
-library(ape)
+library(ape)   # delete this line after finishing
 
 Sicydium_COI_apeFormat <- read.GenBank(Sicydium_COI_names)         # this line takes a few minutes to run
 
@@ -128,17 +132,16 @@ Sicydium_COI_GenBank_Ids <- paste(attr(Sicydium_COI_apeFormat, "species"), names
 write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_Ids, nbchar = 10, file.out = "../data/raw_data/Sicydium_COI_seqinrFormat")
 
 
-                                            # ALIGNNIG/EDITTING SEQS AND GETTING THEM ALL READY FOR PHYLOGENETICS
+                                     # ALIGNIG/EDITTING SEQS AND GETTING THEM ALL READY FOR THE PHYLOGENETIC ANALYSES
 
 ### Removing sequences of incomplete/unspecific NAMES; that is, those with 'sp.'
 nameFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_seqinrFormat", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 
 fastaNames <- strsplit(names(nameFasta), '_')                  # creating a vector splitting species names
-completeSeqs <- which(! grepl("sp.", fastaNames))              # selecting those with specific name in them       # 562
+completeSeqs <- which(! grepl("sp.", fastaNames))              # selecting only those with specific name in them       # 562
 
 # writing a new fasta (3rd) file with only those seqs with full scientific names
 write.fasta(sequences = nameFasta[completeSeqs], names = names(nameFasta)[completeSeqs], file.out = "../data/raw_data/Sicydium_COI_names.fasta")
-
 
 ### Removing sequences of LENGTH shorter than 600 pb, given that the gene COI has between 627 and 658 bp.
 lengthFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_names.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
@@ -146,22 +149,23 @@ fastaLength <- lengthFasta[which(getLength(lengthFasta) >= 600)]       # 399
 write.fasta(sequences = fastaLength, names = names(fastaLength), file.out = "../data/raw_data/Sicydium_COI_lengths.fasta")
 
 ### Aligning the sequences
+# using libraries "msa" and "Biostrings"
 
-BiocManager::install("msa")
-library(msa)
+library(msa)           # delete this line after finishing
+library(Biostrings)    # delete this line after finishing
 
-alignmentFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_lengths.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+mySequences <- readDNAStringSet("../data/raw_data/Sicydium_COI_lengths.fasta")
 
-length(alignmentFasta)
+myClustalOmegaAlignment <- msa(mySequences, "ClustalOmega")   # using algorithm Clustal Omega (Sievers et al. 2011) for aligning
+#print(myClustalOmegaAlignment, showConsensus=FALSE, showNames=TRUE, show="complete") 
 
-myClustalOmegaAlignment <- msa("alignmentFasta", type = "DNA", "ClustalOmega")
+# removing samples with to many gaps at the beginning and the end of the sequences 
+colmask(myClustalOmegaAlignment) <- IRanges(start=c(1,666),end=c(13,679))                
+myClustalOmegaAlignment2 <- as(myClustalOmegaAlignment, "DNAStringSet")
+writeXStringSet(myClustalOmegaAlignment2, file="../data/raw_data/Sicydium_COI_alignment.fasta")         # fasta file of 652 bp
 
-print(myClustalOmegaAlignment, showConsensus=FALSE, halfNrow=3)
-print(myClustalOmegaAlignment, showNames=FALSE, show="complete")
-
-
-
-### Removing most duplicated sequences
+                
+### Removing most duplicate sequences
 
 ### Removing the segment before the start codon TAC
 
