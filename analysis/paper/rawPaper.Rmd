@@ -58,7 +58,7 @@ PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affym
 ```{r, echo=FALSE}
 
                                                       # INSTALLING PACKAGES AND LIBRARIES - if needed
-packages = c("rentrez", "ape", "seqinr", "BiocManager", "msa")
+packages = c("rentrez", "ape", "seqinr", "BiocManager", "modelTest")
 package.check <- lapply(
   packages,
   FUN = function(x) {
@@ -69,10 +69,13 @@ package.check <- lapply(
   }
 )
 
-#if (!requireNamespace("BiocManager", quietly=TRUE))
-#install.packages("BiocManager")
-#BiocManager::install("msa")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
 
+BiocManager::install("msa")
+BiocManager::install("systemPipeR")
+library(stringr)
+library(systemPipeR)
                                                        # DOWNLOADING SEQS FROM GENBANK
 
 # rentrez: this package provides an R interface NCBI API and allows to search databases like GenBank (http://www.ncbi.nih.gov/genbank/) 
@@ -117,7 +120,7 @@ Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name")      # editing spe
 Sicydium_COI_names <- gsub("\\..*", "", Sicydium_COI_names)        # eliminating characters after "." using gsub
 Sicydium_COI_names <- gsub("^.*\\|", "", Sicydium_COI_names)       # eliminating characters before "|" using gsub
 
-
+# using library "ape"
 library(ape)   # delete this line after finishing
 
 Sicydium_COI_apeFormat <- read.GenBank(Sicydium_COI_names)         # this line takes a few minutes to run
@@ -132,46 +135,101 @@ Sicydium_COI_GenBank_Ids <- paste(attr(Sicydium_COI_apeFormat, "species"), names
 write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_Ids, nbchar = 10, file.out = "../data/raw_data/Sicydium_COI_seqinrFormat")
 
 
-                                     # ALIGNIG/EDITTING SEQS AND GETTING THEM ALL READY FOR THE PHYLOGENETIC ANALYSES
+                                     # ALIGNIG/EDITTING SEQS AND GETTING THEM ALL READY FOR THE PHYLOGENETIC ANALYSIS
 
-### Removing sequences of incomplete/unspecific NAMES; that is, those with 'sp.'
+### REMOVING sequences of incomplete/unspecific NAMES; that is, those with 'sp.'
 nameFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_seqinrFormat", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 
 fastaNames <- strsplit(names(nameFasta), '_')                  # creating a vector splitting species names
-completeSeqs <- which(! grepl("sp.", fastaNames))              # selecting only those with specific name in them       # 562
+completeSeqs <- which(! grepl("sp.", fastaNames))              # selecting only those with specific name in them       # 562 seqs
 
 # writing a new fasta (3rd) file with only those seqs with full scientific names
 write.fasta(sequences = nameFasta[completeSeqs], names = names(nameFasta)[completeSeqs], file.out = "../data/raw_data/Sicydium_COI_names.fasta")
 
-### Removing sequences of LENGTH shorter than 600 pb, given that the gene COI has between 627 and 658 bp.
+### REMOVING sequences of LENGTH shorter than 600 pb, given that the gene COI has between 627 and 658 bp.
 lengthFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_names.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
-fastaLength <- lengthFasta[which(getLength(lengthFasta) >= 600)]       # 399
-write.fasta(sequences = fastaLength, names = names(fastaLength), file.out = "../data/raw_data/Sicydium_COI_lengths.fasta")
+fastaLength <- lengthFasta[which(getLength(lengthFasta) >= 600)]       
+write.fasta(sequences = fastaLength, names = names(fastaLength), file.out = "../data/raw_data/Sicydium_COI_lengths.fasta")      # 399 seqs
 
-### Aligning the sequences
-# using libraries "msa" and "Biostrings"
-
+### Aligning the sequences    # using libraries "msa" and "Biostrings"
 library(msa)           # delete this line after finishing
 library(Biostrings)    # delete this line after finishing
 
-mySequences <- readDNAStringSet("../data/raw_data/Sicydium_COI_lengths.fasta")
+alignmentFasta <- readDNAStringSet("../data/raw_data/Sicydium_COI_lengths.fasta")
+ClustalOAlignment <- msa(alignmentFasta, "ClustalOmega")   # algorithm Clustal Omega (Sievers et al. 2011) used for aligning
+#print(ClustalOAlignment, showConsensus=FALSE, showNames=TRUE, show="complete") 
 
-myClustalOmegaAlignment <- msa(mySequences, "ClustalOmega")   # using algorithm Clustal Omega (Sievers et al. 2011) for aligning
-#print(myClustalOmegaAlignment, showConsensus=FALSE, showNames=TRUE, show="complete") 
+# REMOVING samples with to many GAPS at the beginning and the end of the sequences 
+colmask(ClustalOAlignment) <- IRanges(start=c(1,666),end=c(13,679))                
+ClustalOAlignment2 <- as(ClustalOAlignment, "DNAStringSet")
+writeXStringSet(ClustalOAlignment2, file="../data/raw_data/Sicydium_COI_alignment.fasta")         # 399 seqs of 652 bp.
 
-# removing samples with to many gaps at the beginning and the end of the sequences 
-colmask(myClustalOmegaAlignment) <- IRanges(start=c(1,666),end=c(13,679))                
-myClustalOmegaAlignment2 <- as(myClustalOmegaAlignment, "DNAStringSet")
-writeXStringSet(myClustalOmegaAlignment2, file="../data/raw_data/Sicydium_COI_alignment.fasta")         # fasta file of 652 bp
+### Removing DUPLICATE sequences    # using "seqinr" to do it
 
-                
-### Removing most duplicate sequences
+# for not using attributes to name sequences
+duplicatesFasta <- read.fasta("../data/raw_data/Sicydium_COI_alignment.fasta", set.attributes = FALSE) 
+seqnames <- names(duplicatesFasta)
+dups <- grep(TRUE,duplicated(duplicatesFasta))
+uniqueNames <- seqnames[-dups]
+uniqueSeqs <- duplicatesFasta[-dups] 
+write.fasta(sequences = uniqueSeqs, names = uniqueNames, file.out = "../data/raw_data/Sicydium_COI_dupli.fasta")      # 197 seqs of 652 bp.
 
-### Removing the segment before the start codon TAC
+### Replacing gaps with Ns
+library(stringr)
 
+gapsFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_alignment.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+replacingGaps <- lapply(gapsFasta, function(x) str_replace_all(x, "-", "N"))
+write.fasta(replacingGaps,names(replacingGaps),"../data/raw_data/Sicydium_COI_gaps.fasta") 
 
+# GETTING the READING FRAME
+BiocManager::install("systemPipeR")    # delete this line after finishing
+library(systemPipeR)
 
+gettingRF <- function(x){
+  fasta <- readDNAStringSet("../data/raw_data/Sicydium_COI_gaps.fasta")
+  orf1 <- predORF(fasta[1:10], n=1, type="df", mode="orf", strand="sense")   # predORF() do not read seqs with gaps
+  # predicts longest ORF for sense strand in each query sequence                                                                          
+  longestSeq1 <- orf$start[orf$width == max(orf$width)]
+  codonPosition1 <- longestSeq[1]/3
+  codonConfirmation1 <- round(codonPosition1)
+  if (codonPosition1==codonConfirmation1){
+    print("The Reading Frame of the seqs is +1, no further action is required, go to modelTesting")
+    } else {
+    if (codonPosition1!=codonConfirmation1){
+      #remove first nucleotide position
+      newRF2 <- subseq(fasta, start = 2, end = tempLength)      # 651 bp
+      
+      # getting new RF from the new alignment with -1 bp.
+      orf2 <- predORF(newRF2[1:10], n=1, type="df", mode="orf", strand="sense") 
+      
+      # checking size gain
+      longestSeq2 <- orf2$start[orf2$width == max(orf2$width)]
+      codonPosition2 <- (longestSeq2[1]+2)/3
+      codonConfirmation2 <- round(codonPosition2)
+      if (codonPosition2==codonConfirmation2){
+        writeXStringSet(newRF2, file="../data/raw_data/Sicydium_COI_newRF2.fasta")
+      print("The Reading Frame of the seqs is +2, new fasta file created, go to modelTesting")
+      } else {
+      if (codonPosition2!=codonConfirmation2){
+        #remove first nucleotide position
+        tempLength <- length(fasta[[1]])
+        newRF3 <- subseq(fasta, start = 3, end = tempLength)
+        orf3 <- predORF(newRF3[1:10], n=1, type="df", mode="orf", strand="sense") 
+        # checking size gain
+        longestSeq3 <- orf3$start[orf3$width == max(orf3$width)]
+        codonPosition3 <- (longestSeq3[1]+2)/3
+        codonConfirmation3 <- round(codonPosition3)
+        if (codonPosition3==codonConfirmation3){
+          writeXStringSet(newRF3, file="../data/raw_data/Sicydium_COI_newRF3.fasta")
+        print("The Reading Frame of the seqs is +3, new fasta file created, go to modelTesting")
+       }
+     }
+   }  
+    }
+  }
+}
 
+gettingRF(x)
 
 ```
 
@@ -188,13 +246,11 @@ The partition scheme and nucleotide substitution model that best fitted the data
 #install.packages("ape")
 #library(ape)
 
-
-
 # reading the file again, only if necessary
 var1 <- read.dna(sequences already alignned, format = 'fasta')    # format = can be sequential, interleaved, clustal
                                                                   # as.character = TRUE/FALSE, default is class DNAbin
 
-# the alternatie is var1 = read.FASTA = (sequences, type = 'DNA')
+# the alternative is var1 = read.FASTA = (sequences, type = 'DNA')
 
 #getting the class used by modelTest: phyDat or pml
 var2 <- phyDat(var1, type = "DNA", levels = NULL)
