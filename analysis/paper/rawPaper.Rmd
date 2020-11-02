@@ -177,7 +177,7 @@ write.fasta(sequences = uniqueSeqs, names = uniqueNames, file.out = "../data/raw
 ### Replacing gaps with Ns
 library(stringr)
 
-gapsFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_alignment.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+gapsFasta <- read.fasta(file = "../data/raw_data/Sicydium_COI_dupli.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 replacingGaps <- lapply(gapsFasta, function(x) str_replace_all(x, "-", "N"))
 write.fasta(replacingGaps,names(replacingGaps),"../data/raw_data/Sicydium_COI_gaps.fasta") 
 
@@ -189,47 +189,42 @@ gettingRF <- function(x){
   fasta <- readDNAStringSet("../data/raw_data/Sicydium_COI_gaps.fasta")
   orf1 <- predORF(fasta[1:10], n=1, type="df", mode="orf", strand="sense")   # predORF() do not read seqs with gaps
   # predicts longest ORF for sense strand in each query sequence                                                                          
-  longestSeq1 <- orf$start[orf$width == max(orf$width)]
-  codonPosition1 <- longestSeq[1]/3
+  longestSeq1 <- orf1$start[orf1$width == max(orf1$width)]
+  codonPosition1 <- longestSeq1[1]/3
   codonConfirmation1 <- round(codonPosition1)
   if (codonPosition1==codonConfirmation1){
-    print("The Reading Frame of the seqs is +1, no further action is required, go to modelTesting")
+   file.rename("../data/raw_data/Sicydium_COI_gaps.fasta", "../data/raw_data/Sicydium_COI_newRF.fasta") 
+  print("The Reading Frame of these seqs is +1, no further action is required, go to modelTesting")
     } else {
     if (codonPosition1!=codonConfirmation1){
+      tempLength <- length(fasta[[1]])
       #remove first nucleotide position
       newRF2 <- subseq(fasta, start = 2, end = tempLength)      # 651 bp
-      
       # getting new RF from the new alignment with -1 bp.
       orf2 <- predORF(newRF2[1:10], n=1, type="df", mode="orf", strand="sense") 
-      
       # checking size gain
       longestSeq2 <- orf2$start[orf2$width == max(orf2$width)]
       codonPosition2 <- (longestSeq2[1]+2)/3
       codonConfirmation2 <- round(codonPosition2)
       if (codonPosition2==codonConfirmation2){
-        writeXStringSet(newRF2, file="../data/raw_data/Sicydium_COI_newRF2.fasta")
-      print("The Reading Frame of the seqs is +2, new fasta file created, go to modelTesting")
+        writeXStringSet(newRF2, file="../data/raw_data/Sicydium_COI_newRF.fasta")
+      print("The Reading Frame of these seqs was +2, new fasta file created, go to modelTesting")
       } else {
       if (codonPosition2!=codonConfirmation2){
         #remove first nucleotide position
         tempLength <- length(fasta[[1]])
         newRF3 <- subseq(fasta, start = 3, end = tempLength)
-        orf3 <- predORF(newRF3[1:10], n=1, type="df", mode="orf", strand="sense") 
-        # checking size gain
-        longestSeq3 <- orf3$start[orf3$width == max(orf3$width)]
-        codonPosition3 <- (longestSeq3[1]+2)/3
-        codonConfirmation3 <- round(codonPosition3)
-        if (codonPosition3==codonConfirmation3){
-          writeXStringSet(newRF3, file="../data/raw_data/Sicydium_COI_newRF3.fasta")
-        print("The Reading Frame of the seqs is +3, new fasta file created, go to modelTesting")
-       }
+        writeXStringSet(newRF3, file="../data/raw_data/Sicydium_COI_newRF.fasta")
+      print("The Reading Frame of these seqs was +3, new fasta file created, go to modelTesting")
      }
    }  
-    }
   }
+ }
 }
 
 gettingRF(x)
+
+
 
 ```
 
@@ -242,30 +237,65 @@ The partition scheme and nucleotide substitution model that best fitted the data
 ```{r, echo=FALSE}
 
 #getting all packages and libraries
-#install.packages("modelTest")
-#install.packages("ape")
-#library(ape)
+BiocManager::install("modelTest")
+install.packages("ape")
+#library(modelTest)
 
-# reading the file again, only if necessary
-var1 <- read.dna(sequences already alignned, format = 'fasta')    # format = can be sequential, interleaved, clustal
-                                                                  # as.character = TRUE/FALSE, default is class DNAbin
+install.packages("phangorn")
+library(phangorn)
+
+gettingBestModel <- function(x){
+  var1 <- read.dna(file="../data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
+  var2 <- as.phyDat(var1)
+  var3 <- modelTest(var2, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 2)
+  return(var3)
+}
+
+gettingBestModel(x)
+
+mammals <- read.dna("mammals.dna", format="interleaved")
+mammals_phyDat <- phyDat(mammals, type = "DNA", levels = NULL)
+mammals10 <- subset(mammals_phyDat, 1:10)
+mammals10_phyDat <- phyDat(mammals10, type = "DNA", levels = NULL)
+
+
+var1 <- read.dna(file="../data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
+var2 <- as.phyDat(var1)
+
+var11 <- subset(var2, 1:10)
+var21 <- phyDat(var11, type = "DNA", levels = NULL)
+
+var3 <- modelTest(var21, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 2)
+
+print(var3)
+
+
+dna_dist <- dist.ml(var11, model="JC69")
+mammals_NJ  <- NJ(dna_dist)
+plot(mammals_NJ, main = "Neighbor Joining")
+
+fit <- pml(mammals_NJ, var11)
+print(fit)
+
+fitJC <- optim.pml(fit, model = "JC", rearrangement = "stochastic")
+bs <- bootstrap.pml(fitJC, bs=100, optNni=TRUE, multicore=TRUE, control = pml.control(trace=0))
+plotBS(midpoint(fitJC$tree), bs, p = 50, type="p")
+write.tree(bs, file="bootstrap_example.tre")
+
+
+# format = can be sequential, interleaved, clustal
+# as.character = TRUE/FALSE, default is class DNAbin                                                                      
 
 # the alternative is var1 = read.FASTA = (sequences, type = 'DNA')
 
 #getting the class used by modelTest: phyDat or pml
-var2 <- phyDat(var1, type = "DNA", levels = NULL)
-
 # getting the best model
-var3 <- modelTest(var2, tree = NULL, model = "all", multicore = TRUE, mc.cores = 2)
-
 # getting the AICc for each competing model
 # visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
-print(var3)
-
-# storing the best model
-var4 <- dist.ml(var3, model = "uno d esos")
 
 # the alternative is to get automatically the first model from the data.frame modelTest gives and storing it as a variable...
+
+
 
 
 ```
