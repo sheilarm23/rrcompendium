@@ -291,10 +291,6 @@ bsTree <- plotBS(midpoint(fit$tree), bs, p = 75, type="p", bs.col = "blue")     
 plotBS(bsTree, type = "p", cex = 0.2, font = 1)
 write.tree(bsTree, file="../figures/Sicydium_ML_tree.tre")                      # export tree with bootstrap values as node labels
 
-# add.scale.bar(cex = 0.7, font = 2, col = "red")
-
-#plot(bsTree, type = "phylogram", use.edge.length = FALSE, show.node.label = TRUE, label.offset = 10,  node.depth = 1)
-
 BiocManager::install("ggtree")
 library(ggtree)
 
@@ -306,18 +302,20 @@ nodeNumber <- NA
 ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue") # looks horrible but gives me the clade number
 
 # editing/visualizing the tree
-tree2 <-ggtree(tree, size = .4) + geom_treescale(x=0, y=-1.5, offset = -4) + geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 70), size = 3, col= "black", vjust = -0.3, hjust=1.9, na.rm = FALSE) + geom_cladelabel(node=206, label="Sicydium plumieri", color="red") + geom_cladelabel(node=113, label="Sicydium brevifile", color="blue") + geom_cladelabel(node=307, label="Sicydium salvini", color="purple") + geom_cladelabel(node=314, label="Sicydium punctatum", color="brown") + geom_cladelabel(node=363, label="Sicydium buscki", color="black") + geom_cladelabel(node=312, label="Sicydium crenilabrum", color="pink") + geom_hilight(node=369, fill="green") + theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"))
-
+tree2 <-ggtree(tree, size = .4) + 
+  geom_treescale(x=0, y=-1.5, offset = -4) + 
+  geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 70), size = 3, col= "black", vjust = -0.3, hjust=1.9, na.rm = FALSE) + 
+  geom_nodepoint(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 70), size = 1, col= "black") + 
+  geom_cladelabel(node=206, label="Sicydium plumieri", color="red", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=113, label="Sicydium brevifile", color="blue", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=307, label="Sicydium salvini", color="purple", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=314, label="Sicydium punctatum", color="brown", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=363, label="Sicydium buscki", color="black", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=312, label="Sicydium crenilabrum", color="orange", hjust = -0.07, fontsize = 3.5, offset = 0.004, fontface="italic") + 
+  geom_hilight(node=369, fill="green") + 
+  theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"))
 
 tree2
-+ ggplot2::xlim(0, 0.06) + xlim(0, 1) 
-geom_nodelab(size = 7, col= "red") + theme_tree2() + ylim(0,15)
-
-ggtree(tree) + geom_text2(aes(subset = !isTip, label=label))
-# ggtree(tree) + geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 80))
-plot(bsTree, no.margin = TRUE, cex = 0.5)
-add.scale.bar(bsTree, lwd = 1, cex = 0.7, font = 2, col = "red")
-
 
 # saving the tree as a png figure
 ggsave(tree2, width = 15, height = 23, units = "cm", limitsize = FALSE, file = "../figures/Sicydium_ML_tree1.png")
