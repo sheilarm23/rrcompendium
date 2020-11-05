@@ -236,65 +236,26 @@ The partition scheme and nucleotide substitution model that best fitted the data
 
 ```{r, echo=FALSE}
 
-#getting all packages and libraries
+                                          # FINDING THE BEST NUCLEOTIDE SUSBSTITUTION MODEL
 BiocManager::install("modelTest")
 install.packages("ape")
-#library(modelTest)
 
 install.packages("phangorn")
 library(phangorn)
 
-gettingBestModel <- function(x){
-  var1 <- read.dna(file="../data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
-  var2 <- as.phyDat(var1)
-  var3 <- modelTest(var2, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 2)
-  return(var3)
-}
+#gettingBestModel <- function(x){
+  modelFasta <- read.dna(file="../data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
+  formatPhyDat <- as.phyDat(modelFasta)                #getting the class used by modelTest: phyDat or pml
+  modelChoice <- modelTest(formatPhyDat, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 4)
+  modelChoice[order(modelChoice$AICc),]   # getting the AICc for each competing model
+  bestmodel <- modelChoice$Model[which.min(modelChoice$AICc)]
+  #return(bestmodel)
+#}
 
-gettingBestModel(x)
-
-mammals <- read.dna("mammals.dna", format="interleaved")
-mammals_phyDat <- phyDat(mammals, type = "DNA", levels = NULL)
-mammals10 <- subset(mammals_phyDat, 1:10)
-mammals10_phyDat <- phyDat(mammals10, type = "DNA", levels = NULL)
-
-
-var1 <- read.dna(file="../data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
-var2 <- as.phyDat(var1)
-
-var11 <- subset(var2, 1:10)
-var21 <- phyDat(var11, type = "DNA", levels = NULL)
-
-var3 <- modelTest(var21, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 2)
-
-print(var3)
-
-
-dna_dist <- dist.ml(var11, model="JC69")
-mammals_NJ  <- NJ(dna_dist)
-plot(mammals_NJ, main = "Neighbor Joining")
-
-fit <- pml(mammals_NJ, var11)
-print(fit)
-
-fitJC <- optim.pml(fit, model = "JC", rearrangement = "stochastic")
-bs <- bootstrap.pml(fitJC, bs=100, optNni=TRUE, multicore=TRUE, control = pml.control(trace=0))
-plotBS(midpoint(fitJC$tree), bs, p = 50, type="p")
-write.tree(bs, file="bootstrap_example.tre")
-
-
-# format = can be sequential, interleaved, clustal
-# as.character = TRUE/FALSE, default is class DNAbin                                                                      
-
-# the alternative is var1 = read.FASTA = (sequences, type = 'DNA')
-
-#getting the class used by modelTest: phyDat or pml
-# getting the best model
-# getting the AICc for each competing model
 # visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
 
 # the alternative is to get automatically the first model from the data.frame modelTest gives and storing it as a variable...
-
+#gettingBestModel(x)        # HKY+G+I
 
 
 
@@ -311,7 +272,55 @@ write.tree(bs, file="bootstrap_example.tre")
 
 ```{r, echo=FALSE}
 
-chunk for building the tree and store it as a figure
+                                        # FINDING THE BEST NUCLEOTIDE SUSBSTITUTION MODEL
+# getting the tree
+
+library(phangorn)
+env = attr(modelChoice, "env")
+fitStart = eval(get(bestmodel, env), env)    # initial fit for the model chosen
+
+fit = optim.pml(fitStart, rearrangement = "stochastic", optGamma=TRUE, optInv=TRUE, model="HKY")     # seeking a maximum likelihood solution
+bs = bootstrap.pml(fit, bs=100, optNni=TRUE, multicore=TRUE)
+
+# verifying that the optimized tree is indeed better than the original one using standard likelihood ratio tests and AIC
+compareTrees <- anova(fitStart, fit)          # AICc(fitStart)       # AICc(fit)   
+# Both the ANOVA test (highly significant) and the AIC (lower=better) indicate that the new tree is a better model of the data than the initial one.
+
+# saving the tree in folder analysis/figures/
+bsTree <- plotBS(midpoint(fit$tree), bs, p = 75, type="p", bs.col = "blue")     # fit$tree is where the optimal tree is stored
+plotBS(bsTree, type = "p", cex = 0.2, font = 1)
+write.tree(bsTree, file="../figures/Sicydium_ML_tree.tre")                      # export tree with bootstrap values as node labels
+
+# add.scale.bar(cex = 0.7, font = 2, col = "red")
+
+#plot(bsTree, type = "phylogram", use.edge.length = FALSE, show.node.label = TRUE, label.offset = 10,  node.depth = 1)
+
+BiocManager::install("ggtree")
+library(ggtree)
+
+tree <- read.tree(file="../figures/Sicydium_ML_tree.tre")
+
+# getting the node number for each main clade
+nodeNumber <- NA
+
+ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue") # looks horrible but gives me the clade number
+
+# editing/visualizing the tree
+tree2 <-ggtree(tree, size = .4) + geom_treescale(x=0, y=-1.5, offset = -4) + geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 70), size = 3, col= "black", vjust = -0.3, hjust=1.9, na.rm = FALSE) + geom_cladelabel(node=206, label="Sicydium plumieri", color="red") + geom_cladelabel(node=113, label="Sicydium brevifile", color="blue") + geom_cladelabel(node=307, label="Sicydium salvini", color="purple") + geom_cladelabel(node=314, label="Sicydium punctatum", color="brown") + geom_cladelabel(node=363, label="Sicydium buscki", color="black") + geom_cladelabel(node=312, label="Sicydium crenilabrum", color="pink") + geom_hilight(node=369, fill="green") + theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"))
+
+
+tree2
++ ggplot2::xlim(0, 0.06) + xlim(0, 1) 
+geom_nodelab(size = 7, col= "red") + theme_tree2() + ylim(0,15)
+
+ggtree(tree) + geom_text2(aes(subset = !isTip, label=label))
+# ggtree(tree) + geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 80))
+plot(bsTree, no.margin = TRUE, cex = 0.5)
+add.scale.bar(bsTree, lwd = 1, cex = 0.7, font = 2, col = "red")
+
+
+# saving the tree as a png figure
+ggsave(tree2, width = 15, height = 23, units = "cm", limitsize = FALSE, file = "../figures/Sicydium_ML_tree1.png")
 
 
 ```
