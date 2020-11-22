@@ -1,34 +1,33 @@
 ---
-title: "Title Goes Here"
+title: 'The Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern Cuba'
 author:
-  - Myfirstname Mylastname:
-      email: fl@oneplace.edu
+  - Sheila Rodriguez-Machado:
+      email: srodr62@lsu.edu
       institute: [UofO]
       correspondence: true
-  - Yourfirstname Yourlastname:
-      email: fl@another.edu
+  - Tomas M. Rodriguez-Cabrera:
+      email: tomasmichelrodriguez@gmail.com
       institute: [UofA]
       correspondence: false
 institute:
-  - UofO: University of One Place
-  - UofA: University of Another Place
+  - UofO: Museum of Natural Sciences, Louisiana State University
+  - UofA: Sociedad Cubana de Zoologia
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
     bookdown::word_document2:
       fig_caption: yes
-      reference_docx: "../templates/template.docx" # Insert path for the DOCX file
+      reference_docx: '/Users/sheila_ffish/Documents/rrcompendium/analysis/templates/template.docx' # Insert path for the DOCX file
       pandoc_args:
       - --lua-filter=../templates/scholarly-metadata.lua
       - --lua-filter=../templates/author-info-blocks.lua
       - --lua-filter=../templates/pagebreak.lua
 bibliography: references.bib
-csl: "../templates/journal-of-archaeological-science.csl" # Insert path for the bib-style
+csl: '/Users/sheila_ffish/Documents/rrcompendium/analysis/templates/journal-of-archaeological-science.csl' # Insert path for the bib-style
 abstract: |
   Text of abstract
 keywords: |
-  keyword 1; keyword 2; keyword 3
-highlights: |
-  These are the highlights. 
+  amphidromy; Busck's Stone-Biting Goby; COI; Gobiidae 
+   
 ---
 
 <!-- This is the format for text comments that will be ignored during renderings. Do not put R code in these comments because it will not be ignored. -->
@@ -37,11 +36,10 @@ highlights: |
 
 Keywords: `r rmarkdown::metadata$keywords`
 
-Highlights: `r rmarkdown::metadata$highlights`
-
 <!-- The following code chunk defines some general settings how code chunks should behave. -->
 
-```{r setup, echo = FALSE}
+```{r setup, echo = FALSE}    
+# {r settings, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   warning = FALSE,
@@ -51,6 +49,26 @@ knitr::opts_chunk$set(
   fig.path = "../figures/",
   dpi = 300
 )
+
+#knitr::opts_knit$set(root.dir = '../rrcompendium/')
+
+```
+
+
+```{r}
+
+# INSTALLING PACKAGES AND LIBRARIES - if needed
+packages = c("raster", "ggplot2", "ggthemes",  
+             "rentrez", "ape", "seqinr", "msa", "Biostrings", "systemPipeR", "phangorn", "ggtree")
+
+package.check <- lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE, warn.conflicts = FALSE, quietly = TRUE)
+    }
+  }
+)
+
 ```
 
 <!-- The actual document text starts here: -->
@@ -59,18 +77,317 @@ knitr::opts_chunk$set(
 
 Here is a citation [@Marwick2017]
 
-# Background
-
 # Methods
+
+Tetis (19–28 mm standard length) were collected 400 m from the river mouth of Río Yumurí (Figure 2.1), eastern Cuba, in December, 2018. Samples were collected using hand nets (1 mm mesh size) 2 m from the riverbank. Specimens were anesthetized using MS 222 (Tricaine Methanesulphonate) and immediately preserved in 80% ethanol. Voucher specimens were deposited in the collection of the Acuario Nacional de Cuba (catalog number: ANC-xxxx).
+
+```{r figure_1, fig.cap="Sampling site at Yumuri river mouth, Eastern Cuba"}
+
+# getting the map of Cuba
+mydata <- getData("GADM", country = "cuba", level = 1)  # package raster
+mymap <- fortify(mydata)                                # package ggplot2
+
+# sampling site
+dots <- data.frame(
+  long = c(-74.293460),
+  lat = c(20.298537),
+  names = c("Yumuri river mouth"),
+  stringsAsFactors = FALSE
+  ) 
+
+# main map
+mainMap <-  ggplot() +
+       geom_blank(data = mymap, aes(x = long, y = lat)) +
+       geom_map(data = mymap, map = mymap, aes(group = group, map_id = id), fill = "gray90", color = "black", size = 0.3) +
+       scale_x_continuous(limits = c(-74.51, -74.11), expand = c(0, 0)) +
+       scale_y_continuous(limits = c(20.13, 20.42), expand = c(0, 0)) +
+       geom_point(data = dots, aes(x = long, y = lat), color = "red", size = 4) +     
+       coord_equal() +
+       theme_bw()
+
+# small square framing the zomm area
+zoomOut <- data.frame(long = c(-74.49, -74.49, -74.09, -74.09, -74.49),
+                   lat = c(20.13, 20.40, 20.40, 20.13, 20.13))
+
+# inset map
+insetMap <- ggplotGrob(
+      ggplot() +
+      geom_blank(data = mymap, aes(x = long, y = lat)) +
+      geom_map(data = mymap, map = mymap, aes(group = group, map_id = id), fill = "gray95", color = "black", size = 0.3) +
+      geom_path(data = zoomOut, aes(x = long, y = lat), size = 0.3) +
+      scale_x_continuous(limits = c(-85.47, -73.65), expand = c(0, 0)) +
+      scale_y_continuous(limits = c(19.5, 23.5), expand = c(0, 0)) +
+      coord_map("polyconic") +
+      theme_map() +     # package ggthemes
+      theme(panel.background = element_rect(fill = NULL)) # fill = NULL or transparent, with color=NA both the background and the frame are transparent
+      )
+
+mainMap +
+      annotation_custom(grob = insetMap, xmin = -74.12, xmax = -74.37,
+                        ymin = 20.31, ymax = 20.42)
+
+
+```
+
+Total DNA was extracted from caudal peduncle muscle tissues using the DNAeasy tissue kit (QIAGEN). Partial sequences of the mitochondrial gene cytochrome oxidase I (COI) were amplified through the polymerase chain reaction in 20 μL of reaction volume (one unit of GoTaq DNA polymerase-Promega, 0.2 nM of each primer, 0.2 μM dNTPs, and 1.5 mM MgCl2) [@lara2010dna]. We used the primers COIf (5´-AAYCAYAAAGAYGGYACCCT-3´) and COIr (3´-CCTCNGGRTGNCCRAAGAAYCA-5´) [@palumbi1991simple].  
+
+PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affymetrix Inc./ USB, Cleveland, OH, USA), and then sequenced on an ABI 3100 automated sequencer (Applied Biosystems). Raw sequence files were edited and aligned with the software Geneious v.9.1 [@kearse2012geneious], and submitted to GenBank database (accession numbers #####). We used sequences of the genus *Sicydium* as reference for recovering the taxonomic identity of the "tetis". Sequences of *Awaous banana* and *A. ocellaris* were used as outgroup. All non-Cuban sequences were recovered from GenBank using the R package *rentrez* [@winter2017rentrez]. Duplicated sequences and sequences with missing data were excluded. Sequences were edited using the R packages *seqinr* [@charif2007seqinr], *ape* [@paradis2015package], and *biostrings* [@pages2013package]. Final alignment was obtained with the algorithm ClustalOmega (@sievers2011fast) using the R package *msa* [@bodenhofer2015msa].
+
+```{r gettingAPI}
+
+                                                            # DOWNLOADING SEQS FROM GENBANK
+# rentrez: this package provides an R interface NCBI API and allows to search databases like GenBank (http://www.ncbi.nih.gov/genbank/) 
+
+Sicydium_COI <- "Sicydium[Organism] AND COI[Gene]"
+
+# I set retmax=580 because after running this by default, I got a message with the number of hits (580 in this case)
+Sicydium_COI_search <- entrez_search(db = "nuccore", term = Sicydium_COI, retmax = 580)
+
+# given that the search is too big for the system, it needs to be split into two smaller ones
+Sicydium_COI_seqs1 <- entrez_fetch(db = "nuccore", id = Sicydium_COI_search$ids[0:295], rettype = "fasta")
+Sicydium_COI_seqs2 <- entrez_fetch(db = "nuccore", id = Sicydium_COI_search$ids[296:580], rettype = "fasta")
+
+# GETTING OUTGROUP SEQUENCES OF AWAOUS BANANA (2) AND A. OCELLARIS (2)
+
+Awaous_bananaCOI <- "Awaous_banana[Organism] AND COI[Gene]"
+Awaous_bananaCOI_search <- entrez_search(db = "nuccore", term = Awaous_bananaCOI, retmax = 2)
+Awaous_bananaCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_bananaCOI_search$ids, rettype = "fasta")
+
+Awaous_ocellarisCOI <- "Awaous_ocellaris[Organism] AND COI[Gene]"
+Awaous_ocellarisCOI_search <- entrez_search(db = "nuccore", term = Awaous_ocellarisCOI, retmax = 4)
+Awaous_ocellarisCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_ocellarisCOI_search$ids, rettype = "fasta")
+
+# storing ALL sequences in a single fasta file
+write(Sicydium_COI_seqs1, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n")
+write(Sicydium_COI_seqs2, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n", append = TRUE)   # 'append = TRUE', I can keep adding seqs
+write(Awaous_bananaCOI_seqs, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n", append = TRUE)
+write(Awaous_ocellarisCOI_seqs, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n", append = TRUE)
+
+
+```
+
+```{r editingAPI}
+
+# seqinr: package for sequence manipulation 
+# reading the file and renaming the sequences
+
+Sicydium_COI_seqinrFormat <- read.fasta(file ="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+
+Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name")      # editing species name
+Sicydium_COI_names <- gsub("\\..*", "", Sicydium_COI_names)        # eliminating characters after "." using gsub
+Sicydium_COI_names <- gsub("^.*\\|", "", Sicydium_COI_names)       # eliminating characters before "|" using gsub
+
+# using library "ape"
+
+Sicydium_COI_apeFormat <- read.GenBank(Sicydium_COI_names)         # this line takes a few minutes to run
+
+#attr(Sicydium_COI_apeFormat, "species")
+#names(Sicydium_COI_apeFormat)
+
+# creating a vector (to be added as name of the seqs) with the species, GenBank accession number, and type of gene
+Sicydium_COI_GenBank_Ids <- paste(attr(Sicydium_COI_apeFormat, "species"), names(Sicydium_COI_apeFormat), sep = "_COI_")
+
+# writing a new fasta file (2nd) using the vector above 
+write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_Ids, nbchar = 10,
+            file.out = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_2-seqinrFormat")
+
+
+                                     # EDITTING SEQS AND GETTING THEM ALL READY FOR THE PHYLOGENETIC ANALYSIS
+
+### REMOVING sequences of incomplete/unspecific NAMES; that is, those with 'sp.'
+nameFasta <- read.fasta(file = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_2-seqinrFormat",
+                        seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+
+fastaNames <- strsplit(names(nameFasta), '_')                  # creating a vector splitting species names
+completeSeqs <- which(! grepl("sp.", fastaNames))              # selecting only those with specific name in them       # 562 seqs
+
+# writing a new fasta (3rd) file with only those seqs with full scientific names
+write.fasta(sequences = nameFasta[completeSeqs], names = names(nameFasta)[completeSeqs],
+            file.out = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_3-names.fasta")
+
+### REMOVING sequences of LENGTH shorter than 600 pb, given that the gene COI has between 627 and 658 bp.
+lengthFasta <- read.fasta(file = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_3-names.fasta",
+                          seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+fastaLength <- lengthFasta[which(getLength(lengthFasta) >= 600)]       
+write.fasta(sequences = fastaLength, names = names(fastaLength),
+            file.out = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_4-lengths.fasta")  # 401 seqs
+
+### Removing DUPLICATE sequences
+# using "seqinr" to do it 
+# for not using attributes to name sequences
+duplicatesFasta <- read.fasta("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_4-lengths.fasta",
+                              set.attributes = FALSE) 
+seqnames <- names(duplicatesFasta)
+dups <- grep(TRUE,duplicated(duplicatesFasta))
+uniqueNames <- seqnames[-dups]
+uniqueSeqs <- duplicatesFasta[-dups] 
+write.fasta(sequences = uniqueSeqs, names = uniqueNames,
+            file.out = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta")     # 204 seqs
+
+# adding samples from Cuba (n=6)
+#mySamples <- read.fasta("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_Cuba.fasta")
+#write.fasta(mySamples, names(mySamples),
+ #           "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta", open = "a")    # 210 seqs
+
+```
+
+```{r alignment}
+invisible({capture.output({                ### ALIGNING the sequences        # libraries "msa" and "Biostrings"
+
+alignmentFasta <- readDNAStringSet("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta")
+ClustalOAlignment <- msa(alignmentFasta, "ClustalOmega")
+#print(ClustalOAlignment, showConsensus=FALSE, showNames=TRUE, show="complete") 
+
+# REMOVING samples with to many GAPS at the beginning and the end of the sequences 
+colmask(ClustalOAlignment) <- IRanges(start=c(1,666),end=c(25,679))                
+ClustalOAlignment2 <- as(ClustalOAlignment, "DNAStringSet")
+writeXStringSet(ClustalOAlignment2,
+                file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_6-alignment.fasta")   # 210 seqs -- 640 bp
+
+### Replacing gaps at the begining and end with Ns
+gapsFasta <- read.fasta(file = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_6-alignment.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+replacingGaps <- lapply(gapsFasta, function(x) gsub("-", "N", x))
+write.fasta(replacingGaps,names(replacingGaps),"/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")
+
+})})
+
+```
+
+
+```{r warning = FALSE}
+invisible({capture.output({
+                                          ### GETTING the READING FRAME     --- library "systemPipeR"
+gettingRF <- function(x){
+  fasta <- readDNAStringSet("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")
+  orf1 <- predORF(fasta[1:10], n=1, type="df", mode="orf", strand="sense")   # predORF() do not read seqs with gaps
+  # predicts longest ORF for sense strand in each query sequence                                                                          
+  longestSeq1 <- orf1$start[orf1$width == max(orf1$width)]
+  codonPosition1 <- longestSeq1[1]/3
+  codonConfirmation1 <- round(codonPosition1)
+  if (codonPosition1==codonConfirmation1){
+   file.rename("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta", "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")                     # 640 bp
+  print("The Reading Frame of these seqs is +1, no further action is required, go to modelTesting")
+    } else {
+    if (codonPosition1!=codonConfirmation1){
+      tempLength <- length(fasta[[1]])
+      #remove first nucleotide position
+      newRF2 <- subseq(fasta, start = 2, end = tempLength)      # 639 bp
+      # getting new RF from the new alignment with -1 bp.
+      orf2 <- predORF(newRF2[1:10], n=1, type="df", mode="orf", strand="sense") 
+      # checking size gain
+      longestSeq2 <- orf2$start[orf2$width == max(orf2$width)]
+      codonPosition2 <- (longestSeq2[1]+2)/3
+      codonConfirmation2 <- round(codonPosition2)
+      if (codonPosition2==codonConfirmation2){
+        writeXStringSet(newRF2, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")
+      print("The Reading Frame of these seqs was +2, new fasta file created, go to modelTesting")
+      } else {
+      if (codonPosition2!=codonConfirmation2){
+        #remove first nucleotide position
+        tempLength <- length(fasta[[1]])
+        newRF3 <- subseq(fasta, start = 3, end = tempLength)
+        writeXStringSet(newRF3, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")    # 638 bp
+      print("The Reading Frame of these seqs was +3, new fasta file created, go to modelTesting")
+     }
+   }  
+  }
+ }
+}
+
+gettingRF(x)
+
+})})
+
+```
+
+The nucleotide substitution model that best explained our data was estimated using the function modelTest from the R package phangorn [@schliep2011phangorn]. The phylogenetic tree was reconstructed following a maximum mikelihood approach [@felsenstein1981evolutionary] using the functions optim.pml and bootstrap.pml, also from the package phangorn. The tree was generated and visualized using the R package ggtree [@yu2017ggtree].
+
+```{r bestModel, warning = FALSE}
+                                      # FINDING THE BEST NUCLEOTIDE SUSBSTITUTION MODEL
+
+# libraries ape and phangorn (modelTest is a function of the package phangorn)
+
+gettingBestModel <- function(x){
+  modelFasta <- read.dna(file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
+  formatPhyDat <- as.phyDat(modelFasta)                #getting the class used by modelTest: phyDat or pml
+  modelChoice <- modelTest(formatPhyDat, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 4)
+  return(modelChoice)
+}
+  
+bestModel <- gettingBestModel(x)                # getting the AICc for each competing model
+  
+# DISCLAIMER: visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
+# The alternative is to get automatically the first model that the data.frame modelTest gives and storing it as a variable. In order to get this as reproducible as possible, I chose the alternative.
+
+
+```
+
+```{r tree, include=TRUE, results = 'hide', fig.show="hide"}
+
+                                                        # BUILINDG THE TREE
+# --- library: phangorn
+env = attr(bestModel[order(bestModel$AICc),], "env")    # getting the AICc for each competing model sorted
+fitStart = eval(get(bestModel$Model[which.min(bestModel$AICc)], env), env)    # initial fit for the model chosen
+
+# avoid to create a tree every time the code runs
+#set.seed(2015-07-01)
+
+fit = optim.pml(fitStart, rearrangement = "stochastic", optGamma=TRUE, optInv=FALSE, model="HKY")     # seeking a maximum likelihood solution
+bs = bootstrap.pml(fit, bs=100, optNni=TRUE, multicore=TRUE, mc.cores = 4)
+
+# saving the tree in the folder 'analysis/figures/'
+bsTree <- plotBS(midpoint(fit$tree), bs, p = 75, type="p", bs.col = "blue")     # fit$tree is where the optimal tree is stored
+optimalTree <- plotBS(bsTree, type = "p", cex = 0.2, font = 1)
+# export tree with bootstrap values as node labels
+write.tree(optimalTree, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/derived_data/Sicydium_ML_tree.tre")                     
+
+
+```
 
 # Results
 
-<!-- Here's some example analysis code: -->
+(Figure 3.1)
 
-```{r get-data, eval = FALSE}
-# Note the path that we need to use to access our data files when rendering this document
-my_data <- read.csv(here::here('analysis/data/raw_data/my_csv_file.csv'))
+hshdhdhdh
+
+
+
+```{r inline-code2, include = TRUE, results='hide'}
+# the result wont be displayed in the final document
+loglikelihood <- -1*(as.numeric(fit[1]))
+loglikelihood
+
 ```
+
+```{r figure_2, fig.cap = paste("ML phylogenetic tree  (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus Sicydium (n=197). Sequences highlited in green represent samples from Cuba (n=6). Numbers on branches represent boostrap values higher than 70.")}
+
+# Editing and visualizing the tree to represent --- library: ggtree
+tree <- read.tree(file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/derived_data/Sicydium_ML_tree.tre")
+
+# getting the node number for each main clade. This info is important because those #s are the one needed to edit each main clade/species
+nodeNumber <- ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue", size = 1) # looks horrible but it gives the clade number
+
+Sicydium_ML_tree <-suppressWarnings(suppressMessages(print(ggtree(tree, size = .4) + 
+  xlim(-0.02, 0.26) +
+  geom_treescale(x=0, y=-1.5, offset = -4) + 
+  geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 70), size = 3, col= "black", vjust = -0.3, hjust=1.9, na.rm = FALSE) + 
+  geom_nodepoint(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 70), size = 1, col= "black") + 
+  geom_cladelabel(node=218, label="Sicydium plumieri", color="red", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=117, label="Sicydium brevifile", color="blue", hjust = -0.05, vjust = 0.3, fontsize = 3.5, fontface="italic") + 
+  geom_cladelabel(node=320, label="Sicydium salvini", color="purple", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=328, label="Sicydium punctatum", color="brown", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=379, label="Sicydium buscki", color="black", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=415, label="Sicydium crenilabrum", color="orange", hjust = -0.03, vjust = 0.3, fontsize = 3.5, offset = 0.004, fontface="italic") +
+  geom_cladelabel(node=212, label="Awaous spp.", color="darkgreen", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") +
+  geom_hilight(node=377, fill="green") + 
+  theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm")))))
+
+#Sicydium_ML_tree
+
+```
+
+
+
 
 ```{r demo-plot, fig.cap="A plot of random numbers"}
 plot(rnorm(10))
@@ -88,7 +405,11 @@ Here is an example of inline code `r x` in the middle of a sentence.
 
 # Conclusion
 
+Busck´s Stone-Biting Goby, *Sicydium buscki*, is a component of the fish fry “teti” fishery in Eastern Cuba. This species represents the only taxa of the orden Gobiiformes confirmed by molecular tools as part of such a fishery.
+More thorough investigations and identification of the species comprising the “teti” fishery are needed. It is imperative to include them in  local management plans and to avoid overfishing this resource.
+
 # Acknowledgements
+
 
 <!-- The following line inserts a page break  -->
 
