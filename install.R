@@ -1,7 +1,4 @@
-# Installing packages for binder.
-
-# I did not include here "rmarkdown", "testthat", or any other because the project doesnt rely directly on them to run
-
+# Installing packages for binder        # I did not include here "rmarkdown", "testthat", or any other because the project doesnt rely directly on them to run
 install.packages("raster")
 install.packages("ggplot2")
 install.packages("ggthemes")
