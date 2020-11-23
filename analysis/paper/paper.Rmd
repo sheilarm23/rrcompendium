@@ -64,7 +64,7 @@ packages = c("raster", "ggplot2", "ggthemes",
 package.check <- lapply(packages, FUN = function(x) {
     if (!require(x, character.only = TRUE)) {
       install.packages(x, dependencies = TRUE)
-      library(x, character.only = TRUE, warn.conflicts = FALSE, quietly = TRUE)
+      library(x, character.only = TRUE, include = FALSE, warn.conflicts = FALSE, quietly = TRUE)
     }
   }
 )
@@ -257,7 +257,7 @@ write.fasta(replacingGaps,names(replacingGaps),"/Users/sheila_ffish/Documents/rr
 ```{r warning = FALSE}
 invisible({capture.output({
                                           ### GETTING the READING FRAME     --- library "systemPipeR"
-gettingRF <- function(x){
+gettingRF <- function(alignedFasta){
   fasta <- readDNAStringSet("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")
   orf1 <- predORF(fasta[1:10], n=1, type="df", mode="orf", strand="sense")   # predORF() do not read seqs with gaps
   # predicts longest ORF for sense strand in each query sequence                                                                          
@@ -294,7 +294,7 @@ gettingRF <- function(x){
  }
 }
 
-gettingRF(x)
+gettingRF(alignedFasta)
 
 })})
 
@@ -307,14 +307,14 @@ The nucleotide substitution model that best explained our data was estimated usi
 
 # libraries ape and phangorn (modelTest is a function of the package phangorn)
 
-gettingBestModel <- function(x){
+gettingBestModel <- function(fastaORF){
   modelFasta <- read.dna(file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
   formatPhyDat <- as.phyDat(modelFasta)                #getting the class used by modelTest: phyDat or pml
   modelChoice <- modelTest(formatPhyDat, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 4)
   return(modelChoice)
 }
   
-bestModel <- gettingBestModel(x)                # getting the AICc for each competing model
+bestModel <- gettingBestModel(fastaORF)                # getting the AICc for each competing model
   
 # DISCLAIMER: visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
 # The alternative is to get automatically the first model that the data.frame modelTest gives and storing it as a variable. In order to get this as reproducible as possible, I chose the alternative.
@@ -322,7 +322,7 @@ bestModel <- gettingBestModel(x)                # getting the AICc for each comp
 
 ```
 
-```{r tree, include=TRUE, results = 'hide', fig.show="hide"}
+```{r tree, include=TRUE, results = 'hide', fig.show='hide'}
 
                                                         # BUILINDG THE TREE
 # --- library: phangorn
