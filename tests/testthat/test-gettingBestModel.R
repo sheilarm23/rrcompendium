@@ -1,16 +1,23 @@
 
-context("test-process-data")
+context("test-gettingBestModel")
 
-data <- readr::read_csv(system.file("testdata",
-                                    "gillespie.csv",
-                                    package = "rrcompendium"))
-
-test_that("recoding works", {
-  expect_equal(unique(recode_system_size(data)$system_size),
-               c("A. 1000 total sites", "B. 100 total sites" ))
+test1 <- test_that("input file is of a given class", {
+  expect_is(fastaRF, "DNAbin")
 })
 
-test_that("data dims preserved", {
-  expect_equal(dim(recode_system_size(data)),
-               dim(data))
+test2 <- test_that("gettingBestModel outputs an object of class modelTest", {
+  expect_is(gettingBestModel(fastaRF), "modelTest")
 })
+
+test3 <- test_that("gettingBestModel outputs a data.frame", {
+  expect_is(gettingBestModel(fastaRF), "data.frame")
+})
+
+test4 <- test_that("gettingBestModel(fastaRF) has 24 rows based on the number of model selected", {
+  expect_true(nrow(gettingBestModel(fastaRF)) == 24)
+})
+
+test5 <- test_that("gettingBestModel(fastaRF) has sorted the AICc column from lowest to highest value", {
+  expect_true(gettingBestModel(fastaRF)$AICc[1] == min(gettingBestModel(fastaRF)$AICc))
+})
+
