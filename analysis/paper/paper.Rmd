@@ -81,7 +81,7 @@ Here is a citation [@Marwick2017]
 
 Tetis (19–28 mm standard length) were collected 400 m from the river mouth of Río Yumurí (Figure 2.1), eastern Cuba, in December, 2018. Samples were collected using hand nets (1 mm mesh size) 2 m from the riverbank. Specimens were anesthetized using MS 222 (Tricaine Methanesulphonate) and immediately preserved in 80% ethanol. Voucher specimens were deposited in the collection of the Acuario Nacional de Cuba (catalog number: ANC-xxxx).
 
-```{r figure_1, fig.cap="Sampling site at Yumuri river mouth, Eastern Cuba"}
+```{r mainMap, fig.cap="Sampling site at Yumuri river mouth, Eastern Cuba", cache = TRUE}
 
 # getting the map of Cuba
 mydata <- getData("GADM", country = "cuba", level = 1)  # package raster
@@ -133,7 +133,7 @@ Total DNA was extracted from caudal peduncle muscle tissues using the DNAeasy ti
 
 PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affymetrix Inc./ USB, Cleveland, OH, USA), and then sequenced on an ABI 3100 automated sequencer (Applied Biosystems). Raw sequence files were edited and aligned with the software Geneious v.9.1 [@kearse2012geneious], and submitted to GenBank database (accession numbers #####). We used sequences of the genus *Sicydium* as reference for recovering the taxonomic identity of the "tetis". Sequences of *Awaous banana* and *A. ocellaris* were used as outgroup. All non-Cuban sequences were recovered from GenBank using the R package *rentrez* [@winter2017rentrez]. Duplicated sequences and sequences with missing data were excluded. Sequences were edited using the R packages *seqinr* [@charif2007seqinr], *ape* [@paradis2015package], and *biostrings* [@pages2013package]. Final alignment was obtained with the algorithm ClustalOmega (@sievers2011fast) using the R package *msa* [@bodenhofer2015msa].
 
-```{r gettingAPI}
+```{r gettingAPI, cache = TRUE}
 
                                                             # DOWNLOADING SEQS FROM GENBANK
 # rentrez: this package provides an R interface NCBI API and allows to search databases like GenBank (http://www.ncbi.nih.gov/genbank/) 
@@ -166,7 +166,7 @@ write(Awaous_ocellarisCOI_seqs, file="/Users/sheila_ffish/Documents/rrcompendium
 
 ```
 
-```{r editingAPI}
+```{r editingAPI, cache = TRUE}
 
 # seqinr: package for sequence manipulation 
 # reading the file and renaming the sequences
@@ -231,7 +231,7 @@ write.fasta(sequences = uniqueSeqs, names = uniqueNames,
 
 ```
 
-```{r alignment}
+```{r alignment, cache = TRUE}
 invisible({capture.output({                ### ALIGNING the sequences        # libraries "msa" and "Biostrings"
 
 alignmentFasta <- readDNAStringSet("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta")
@@ -257,21 +257,30 @@ write.fasta(replacingGaps,names(replacingGaps),"/Users/sheila_ffish/Documents/rr
 ```{r warning = FALSE}
 invisible({capture.output({
                                           ### GETTING the READING FRAME     --- library "systemPipeR"
+
+alignedFasta <- readDNAStringSet("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta") 
+
 gettingRF <- function(alignedFasta){
-  fasta <- readDNAStringSet("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")
-  orf1 <- predORF(fasta[1:10], n=1, type="df", mode="orf", strand="sense")   # predORF() do not read seqs with gaps
-  # predicts longest ORF for sense strand in each query sequence                                                                          
+  if (class(alignedFasta)!= c("DNAStringSet")){
+    stop("This function only takes files of class 'DNAStringSet'. Use package 'Biostrings' to read the input file")
+  }
+  if (any(letterFrequency(alignedFasta, "-", as.prob=TRUE))>0){
+    stop("This function do not take gaps as values/strings. Go and replaced gaps with Ns (if the gaps are at the begining or end of the sequences) or choose a subset of sequences that do not contain gaps")
+  }
+  # predORF() do not read seqs with gaps   # predicts longest ORF for sense strand in each query sequence               
+  orf1 <- predORF(alignedFasta[1:10], n=1, type="df", mode="orf", strand="sense")                                       
   longestSeq1 <- orf1$start[orf1$width == max(orf1$width)]
   codonPosition1 <- longestSeq1[1]/3
   codonConfirmation1 <- round(codonPosition1)
+  length(alignedFasta)
   if (codonPosition1==codonConfirmation1){
    file.rename("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta", "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")                     # 640 bp
   print("The Reading Frame of these seqs is +1, no further action is required, go to modelTesting")
     } else {
     if (codonPosition1!=codonConfirmation1){
-      tempLength <- length(fasta[[1]])
+      tempLength <- length(alignedFasta[[1]])
       #remove first nucleotide position
-      newRF2 <- subseq(fasta, start = 2, end = tempLength)      # 639 bp
+      newRF2 <- subseq(alignedFasta, start = 2, end = tempLength)      # 639 bp
       # getting new RF from the new alignment with -1 bp.
       orf2 <- predORF(newRF2[1:10], n=1, type="df", mode="orf", strand="sense") 
       # checking size gain
@@ -284,8 +293,8 @@ gettingRF <- function(alignedFasta){
       } else {
       if (codonPosition2!=codonConfirmation2){
         #remove first nucleotide position
-        tempLength <- length(fasta[[1]])
-        newRF3 <- subseq(fasta, start = 3, end = tempLength)
+        tempLength <- length(alignedFasta[[1]])
+        newRF3 <- subseq(alignedFasta, start = 3, end = tempLength)
         writeXStringSet(newRF3, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")    # 638 bp
       print("The Reading Frame of these seqs was +3, new fasta file created, go to modelTesting")
      }
@@ -294,9 +303,11 @@ gettingRF <- function(alignedFasta){
  }
 }
 
+
 gettingRF(alignedFasta)
 
 })})
+
 
 ```
 
@@ -307,15 +318,20 @@ The nucleotide substitution model that best explained our data was estimated usi
 
 # libraries ape and phangorn (modelTest is a function of the package phangorn)
 
-gettingBestModel <- function(fastaORF){
-  modelFasta <- read.dna(file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
-  formatPhyDat <- as.phyDat(modelFasta)                #getting the class used by modelTest: phyDat or pml
+fastaRF <- read.dna(file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
+
+gettingBestModel <- function(fastaRF){
+  if (class(fastaRF)!= c("DNAbin")){
+    stop("This function only takes files of class 'DNAbin'. Use package 'ape' to read the input file")
+  }
+  formatPhyDat <- as.phyDat(fastaRF)                #getting the class used by modelTest: phyDat or pml
   modelChoice <- modelTest(formatPhyDat, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 4)
-  return(modelChoice)
+  modelChoiceSorted <- modelChoice[order(modelChoice$AICc),]
+  return(modelChoiceSorted)
 }
   
-bestModel <- gettingBestModel(fastaORF)                # getting the AICc for each competing model
-  
+bestModel <- gettingBestModel(fastaRF)                # getting the AICc for each competing model
+
 # DISCLAIMER: visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
 # The alternative is to get automatically the first model that the data.frame modelTest gives and storing it as a variable. In order to get this as reproducible as possible, I chose the alternative.
 
@@ -326,7 +342,7 @@ bestModel <- gettingBestModel(fastaORF)                # getting the AICc for ea
 
                                                         # BUILINDG THE TREE
 # --- library: phangorn
-env = attr(bestModel[order(bestModel$AICc),], "env")    # getting the AICc for each competing model sorted
+env = attr(bestModel, "env")    # getting the AICc for each competing model sorted
 fitStart = eval(get(bestModel$Model[which.min(bestModel$AICc)], env), env)    # initial fit for the model chosen
 
 # avoid to create a tree every time the code runs
@@ -351,10 +367,9 @@ write.tree(optimalTree, file="/Users/sheila_ffish/Documents/rrcompendium/analysi
 hshdhdhdh
 
 
-
 ```{r inline-code2, include = TRUE, results='hide'}
 # the result wont be displayed in the final document
-loglikelihood <- -1*(as.numeric(fit[1]))
+loglikelihood <- round(-1*(as.numeric(fit[1])), 2)
 loglikelihood
 
 ```
