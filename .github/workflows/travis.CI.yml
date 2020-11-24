@@ -1,0 +1,10 @@
+language: r
+os: linux
+dist: xenial
+r:
+  - oldrel
+  - release
+  - devel
+install: skip
+script:
+  - R -e "source('tests/testthat.R')"
