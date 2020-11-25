@@ -6,14 +6,14 @@ test1 <- test_that("getBestModel errors out when a file of class other than 'DNA
 })
 
 test2 <- test_that("getBestModel outputs an object of class modelTest", {
-  expect_is(class(getBestModel(fastaRF)), "data.frame")
+  expect_is(class(getBestModel(fastaRF)), c("modelTest", "data.frame"))
 })
 
 test3 <- test_that("getBestModel(fastaRF) has 24 rows based on the number of model selected", {
-  expect_true(nrow(getBestModel(fastaRF)) == 24)
+  expect_equal(nrow(getBestModel(fastaRF)), 24)
 })
 
 test4 <- test_that("getBestModel(fastaRF) has sorted the AICc column from lowest to highest value", {
-  expect_true(getBestModel(fastaRF)$AICc[1] == min(getBestModel(fastaRF)$AICc))
+  expect_equal(getBestModel(fastaRF)$AICc[1], min(getBestModel(fastaRF)$AICc))
 })
 
