@@ -81,7 +81,7 @@ Here is a citation [@Marwick2017]
 
 Tetis (19–28 mm standard length) were collected 400 m from the river mouth of Río Yumurí (Figure 2.1), eastern Cuba, in December, 2018. Samples were collected using hand nets (1 mm mesh size) 2 m from the riverbank. Specimens were anesthetized using MS 222 (Tricaine Methanesulphonate) and immediately preserved in 80% ethanol. Voucher specimens were deposited in the collection of the Acuario Nacional de Cuba (catalog number: ANC-xxxx).
 
-```{r mainMap, fig.cap="Sampling site at Yumuri river mouth, Eastern Cuba", cache = TRUE}
+```{r mainMap, fig.cap="Sampling site at Yumuri river mouth, Eastern Cuba"}
 
 # getting the map of Cuba
 mydata <- getData("GADM", country = "cuba", level = 1)  # package raster
@@ -133,7 +133,7 @@ Total DNA was extracted from caudal peduncle muscle tissues using the DNAeasy ti
 
 PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affymetrix Inc./ USB, Cleveland, OH, USA), and then sequenced on an ABI 3100 automated sequencer (Applied Biosystems). Raw sequence files were edited and aligned with the software Geneious v.9.1 [@kearse2012geneious], and submitted to GenBank database (accession numbers #####). We used sequences of the genus *Sicydium* as reference for recovering the taxonomic identity of the "tetis". Sequences of *Awaous banana* and *A. ocellaris* were used as outgroup. All non-Cuban sequences were recovered from GenBank using the R package *rentrez* [@winter2017rentrez]. Duplicated sequences and sequences with missing data were excluded. Sequences were edited using the R packages *seqinr* [@charif2007seqinr], *ape* [@paradis2015package], and *biostrings* [@pages2013package]. Final alignment was obtained with the algorithm ClustalOmega (@sievers2011fast) using the R package *msa* [@bodenhofer2015msa].
 
-```{r gettingAPI, cache = TRUE}
+```{r gettingAPI}
 
                                                             # DOWNLOADING SEQS FROM GENBANK
 # rentrez: this package provides an R interface NCBI API and allows to search databases like GenBank (http://www.ncbi.nih.gov/genbank/) 
@@ -166,7 +166,7 @@ write(Awaous_ocellarisCOI_seqs, file="/Users/sheila_ffish/Documents/rrcompendium
 
 ```
 
-```{r editingAPI, cache = TRUE}
+```{r editingAPI}
 
 # seqinr: package for sequence manipulation 
 # reading the file and renaming the sequences
@@ -231,7 +231,7 @@ write.fasta(sequences = uniqueSeqs, names = uniqueNames,
 
 ```
 
-```{r alignment, cache = TRUE}
+```{r alignment}
 invisible({capture.output({                ### ALIGNING the sequences        # libraries "msa" and "Biostrings"
 
 alignmentFasta <- readDNAStringSet("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta")
@@ -247,7 +247,7 @@ writeXStringSet(ClustalOAlignment2,
 ### Replacing gaps at the begining and end with Ns
 gapsFasta <- read.fasta(file = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_6-alignment.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 replacingGaps <- lapply(gapsFasta, function(x) gsub("-", "N", x))
-write.fasta(replacingGaps,names(replacingGaps),"/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")
+write.fasta(replacingGaps, names(replacingGaps), "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")
 
 })})
 
@@ -326,7 +326,7 @@ getBestModel <- function(fastaRF){
   }
   formatPhyDat <- as.phyDat(fastaRF)                #getting the class used by modelTest: phyDat or pml
   modelChoice <- modelTest(formatPhyDat, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 4)
-  modelChoiceSorted <- modelChoice[order(modelChoice$AICc),]
+  modelChoiceSorted <- as.data.frame(modelChoice[order(modelChoice$AICc),])
   return(modelChoiceSorted)
 }
   
@@ -349,6 +349,7 @@ fitStart = eval(get(bestModel$Model[which.min(bestModel$AICc)], env), env)    # 
 #set.seed(2015-07-01)
 
 fit = optim.pml(fitStart, rearrangement = "stochastic", optGamma=TRUE, optInv=FALSE, model="HKY")     # seeking a maximum likelihood solution
+#set.seed(123)    # getting the same tree topology each time the code runs 
 bs = bootstrap.pml(fit, bs=100, optNni=TRUE, multicore=TRUE, mc.cores = 4)
 
 # saving the tree in the folder 'analysis/figures/'
@@ -374,7 +375,7 @@ loglikelihood
 
 ```
 
-```{r figure_2, fig.cap = paste("ML phylogenetic tree  (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus Sicydium (n=197). Sequences highlited in green represent samples from Cuba (n=6). Numbers on branches represent boostrap values higher than 70.")}
+```{r Sicydium_ML_tree, fig.cap = paste("ML phylogenetic tree  (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus Sicydium (n=197). Sequences highlited in green represent samples from Cuba (n=6). Numbers on branches represent boostrap values higher than 70.", fig.width = 11.8, fig.height = 9.84)}
 
 # Editing and visualizing the tree to represent --- library: ggtree
 tree <- read.tree(file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/derived_data/Sicydium_ML_tree.tre")
@@ -398,7 +399,6 @@ Sicydium_ML_tree <-suppressWarnings(suppressMessages(print(ggtree(tree, size = .
   theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm")))))
 
 #Sicydium_ML_tree
-
 ```
 
 
