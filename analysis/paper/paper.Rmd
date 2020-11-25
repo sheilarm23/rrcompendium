@@ -260,7 +260,7 @@ invisible({capture.output({
 
 alignedFasta <- readDNAStringSet("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta") 
 
-gettingRF <- function(alignedFasta){
+getRF <- function(alignedFasta){
   if (class(alignedFasta)!= c("DNAStringSet")){
     stop("This function only takes files of class 'DNAStringSet'. Use package 'Biostrings' to read the input file")
   }
@@ -304,7 +304,7 @@ gettingRF <- function(alignedFasta){
 }
 
 
-gettingRF(alignedFasta)
+getRF(alignedFasta)
 
 })})
 
@@ -320,7 +320,7 @@ The nucleotide substitution model that best explained our data was estimated usi
 
 fastaRF <- read.dna(file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
 
-gettingBestModel <- function(fastaRF){
+getBestModel <- function(fastaRF){
   if (class(fastaRF)!= c("DNAbin")){
     stop("This function only takes files of class 'DNAbin'. Use package 'ape' to read the input file")
   }
@@ -330,7 +330,7 @@ gettingBestModel <- function(fastaRF){
   return(modelChoiceSorted)
 }
   
-bestModel <- gettingBestModel(fastaRF)                # getting the AICc for each competing model
+bestModel <- getBestModel(fastaRF)                # getting the AICc for each competing model
 
 # DISCLAIMER: visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
 # The alternative is to get automatically the first model that the data.frame modelTest gives and storing it as a variable. In order to get this as reproducible as possible, I chose the alternative.

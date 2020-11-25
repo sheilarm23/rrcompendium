@@ -1,4 +1,4 @@
-#' gettingRF
+#' getRF
 #' This function determines the Reading Frame (RF) of a dataset of nucleotide sequences
 #'
 #' @param alignedFasta takes as input a dataset of aligned sequences of the same length
@@ -6,7 +6,7 @@
 #' As output, this function either renames the input file if the sequences are in the ORF 1, or it writes a new fasta file if the input file was in ORF 2 or 3.
 #' The output file will be of RF 1
 #'
-gettingRF <- function(alignedFasta){
+getRF <- function(alignedFasta){
   if (class(alignedFasta)!= c("DNAStringSet")){
     stop("This function only takes files of class 'DNAStringSet'. Use package 'Biostrings' to read the input file")
   }
