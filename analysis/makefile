@@ -6,33 +6,18 @@
 
 #############################
 
-all:
-				make paper/paper.docx
-				make paper/paper.pdf
+.PHONY: all
 
-#install: analysis/install.R
-#				Rscript analysis/install.R
+all: paper/paper.docx
 
 paper/paper.docx: paper/paper.Rmd
-				Rscript -e "rmarkdown::render('paper.Rmd')"
+	Rscript -e "rmarkdown::render('paper/paper.Rmd')"
 
-paper/paper.pdf: paper/paper.Rmd
-				Rscript -e "rmarkdown::render('paper.Rmd')"
+.PHONY: clean
 
+clean:
+	cd paper; rm *.docx *.rds
+	cd figures; rm -f *.png
+	cd data/raw_data; rm -f *.fasta
+	cd data/derived_data; rm *.tre
 
-.PHONY: cleanFigs cleanFasta cleanRaster cleanTree cleanPaper
-
-cleanFigs:
-        rm -rf figures/*.png
-
-cleanFasta:
-        rm -rf data/raw_data/*.fasta
-
-cleanRaster:
-        rm -rf paper/*.rds
-
-cleanTree:
-				rm -rf data/derived_data/*.tre
-
-cleanPaper:
-				rm -rf paper/paper.docx  paper/paper.pdf
