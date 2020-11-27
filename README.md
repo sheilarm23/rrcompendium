@@ -18,7 +18,7 @@ Our pre-print will be online here:
 
 > Rodriguez-Machado, S., Rodríguez-Cabrera, T.M., and Chakrabarty, P.
 > (2020). *The Truth is Revealed: Identity of the Fish Fry “Teti”
-> Fishery in Eastern Cuba*. Name of journal/book, Accessed 24 Nov 2020.
+> Fishery in Eastern Cuba*. Name of journal/book, Accessed 26 Nov 2020.
 > Online at
 > [https://doi.org/{DOI-to-compendium}](https://doi.org/%7BDOI-to-compendium%7D)
 
@@ -28,7 +28,7 @@ Please cite this compendium as:
 
 > Rodriguez-Machado, S. (2020). *Compendium of R code and data for `The
 > Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern
-> Cuba`*. Accessed 24 Nov 2020. Online at
+> Cuba`*. Accessed 26 Nov 2020. Online at
 > [https://doi.org/{DOI-to-compendium}](https://doi.org/%7BDOI-to-compendium%7D)
 
 ## Contents
@@ -43,10 +43,6 @@ The **analysis** directory contains:
   - [:file\_folder: data](/analysis/data): Data used in the analysis.
   - [:file\_folder: figures](/analysis/figures): Plots and other
     illustrations
-  - [:file\_folder:
-    supplementary-materials](/analysis/supplementary-materials):
-    Supplementary materials including notes and other documents prepared
-    and collected during the analysis.
 
 ## How to run in your broswer or download and run locally
 
@@ -71,6 +67,11 @@ packages this analysis depends on (also listed in the
 [DESCRIPTION](/DESCRIPTION) file). - finally, open
 `analysis/paper/paper.Rmd` and knit to produce the `paper.docx`, or run
 `rmarkdown::render("analysis/paper/paper.Rmd")` in the R console
+
+Makefile: Whatever the option you choose to explore this compendium, you
+can also use the makefile (`/analysis/makefile`) in the terminal (`make
+all`) to compile the .docx document and then, you can use `make clean`
+to remove all files generated during the process.
 
 ### Licenses
 

@@ -48,10 +48,6 @@ The **analysis** directory contains:
   - [:file\_folder: data](/analysis/data): Data used in the analysis.
   - [:file\_folder: figures](/analysis/figures): Plots and other
     illustrations
-  - [:file\_folder:
-    supplementary-materials](/analysis/supplementary-materials):
-    Supplementary materials including notes and other documents
-    prepared and collected during the analysis.
 
 ## How to run in your broswer or download and run locally
 
@@ -73,6 +69,9 @@ You can download the compendium as a zip from from this URL:
 - run `devtools::install()` to ensure you have the packages this analysis depends on (also listed in the
 [DESCRIPTION](/DESCRIPTION) file).
 - finally, open `analysis/paper/paper.Rmd` and knit to produce the `paper.docx`, or run `rmarkdown::render("analysis/paper/paper.Rmd")` in the R console
+
+Makefile:
+Whatever the option you choose to explore this compendium, you can also use the makefile (`/analysis/makefile`) in the terminal (`make all`) to compile the .docx document and then, you can use `make clean` to remove all files generated during the process. 
 
 ### Licenses
 
