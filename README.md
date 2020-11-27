@@ -43,6 +43,8 @@ The **analysis** directory contains:
   - [:file\_folder: data](/analysis/data): Data used in the analysis.
   - [:file\_folder: figures](/analysis/figures): Plots and other
     illustrations
+  - [:file\_folder: templates](/analysis/templates): Style of citations
+    and reference list
 
 ## How to run in your broswer or download and run locally
 
