@@ -24,10 +24,12 @@ output:
 bibliography: references.bib
 csl: '/Users/sheila_ffish/Documents/rrcompendium/analysis/templates/journal-of-archaeological-science.csl' # Insert path for the bib-style
 abstract: |
-  Text of abstract
+  texting texting
 keywords: |
   amphidromy; Busck's Stone-Biting Goby; COI; Gobiidae 
    
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!-- This is the format for text comments that will be ignored during renderings. Do not put R code in these comments because it will not be ignored. -->
@@ -39,7 +41,6 @@ Keywords: `r rmarkdown::metadata$keywords`
 <!-- The following code chunk defines some general settings how code chunks should behave. -->
 
 ```{r setup, echo = FALSE}    
-# {r settings, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   warning = FALSE,
@@ -51,6 +52,8 @@ knitr::opts_chunk$set(
 )
 
 #knitr::opts_knit$set(root.dir = '../rrcompendium/')
+
+#getwd()
 
 ```
 
@@ -158,10 +161,10 @@ Awaous_ocellarisCOI_search <- entrez_search(db = "nuccore", term = Awaous_ocella
 Awaous_ocellarisCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_ocellarisCOI_search$ids, rettype = "fasta")
 
 # storing ALL sequences in a single fasta file
-write(Sicydium_COI_seqs1, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n")
-write(Sicydium_COI_seqs2, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n", append = TRUE)   # 'append = TRUE', I can keep adding seqs
-write(Awaous_bananaCOI_seqs, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n", append = TRUE)
-write(Awaous_ocellarisCOI_seqs, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n", append = TRUE)
+write(Sicydium_COI_seqs1, file="../rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n")
+write(Sicydium_COI_seqs2, file="../rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n", append = TRUE)   # 'append = TRUE', I can keep adding seqs
+write(Awaous_bananaCOI_seqs, file="../rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n", append = TRUE)
+write(Awaous_ocellarisCOI_seqs, file="../rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", sep = "\n", append = TRUE)
 
 
 ```
@@ -171,83 +174,87 @@ write(Awaous_ocellarisCOI_seqs, file="/Users/sheila_ffish/Documents/rrcompendium
 # seqinr: package for sequence manipulation 
 # reading the file and renaming the sequences
 
-Sicydium_COI_seqinrFormat <- read.fasta(file ="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+Sicydium_COI_seqinrFormat <- read.fasta(file ="../rrcompendium/analysis/data/raw_data/Sicydium_COI_1-seqs.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 
 Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name")      # editing species name
 Sicydium_COI_names <- gsub("\\..*", "", Sicydium_COI_names)        # eliminating characters after "." using gsub
 Sicydium_COI_names <- gsub("^.*\\|", "", Sicydium_COI_names)       # eliminating characters before "|" using gsub
 
 # using library "ape"
-
 Sicydium_COI_apeFormat <- read.GenBank(Sicydium_COI_names)         # this line takes a few minutes to run
-
-#attr(Sicydium_COI_apeFormat, "species")
-#names(Sicydium_COI_apeFormat)
 
 # creating a vector (to be added as name of the seqs) with the species, GenBank accession number, and type of gene
 Sicydium_COI_GenBank_Ids <- paste(attr(Sicydium_COI_apeFormat, "species"), names(Sicydium_COI_apeFormat), sep = "_COI_")
 
 # writing a new fasta file (2nd) using the vector above 
 write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_Ids, nbchar = 10,
-            file.out = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_2-seqinrFormat")
+            file.out = "../rrcompendium/analysis/data/raw_data/Sicydium_COI_2-seqinrFormat.fasta")
 
 
                                      # EDITTING SEQS AND GETTING THEM ALL READY FOR THE PHYLOGENETIC ANALYSIS
 
 ### REMOVING sequences of incomplete/unspecific NAMES; that is, those with 'sp.'
-nameFasta <- read.fasta(file = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_2-seqinrFormat",
+nameFasta <- read.fasta(file = "../rrcompendium/analysis/data/raw_data/Sicydium_COI_2-seqinrFormat.fasta",
                         seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 
 fastaNames <- strsplit(names(nameFasta), '_')                  # creating a vector splitting species names
-completeSeqs <- which(! grepl("sp.", fastaNames))              # selecting only those with specific name in them       # 562 seqs
+completeSeqs <- which(! grepl("sp.", fastaNames))              # selecting only those with specific name in them  
 
 # writing a new fasta (3rd) file with only those seqs with full scientific names
 write.fasta(sequences = nameFasta[completeSeqs], names = names(nameFasta)[completeSeqs],
-            file.out = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_3-names.fasta")
+            file.out = "../rrcompendium/analysis/data/raw_data/Sicydium_COI_3-names.fasta")
 
 ### REMOVING sequences of LENGTH shorter than 600 pb, given that the gene COI has between 627 and 658 bp.
-lengthFasta <- read.fasta(file = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_3-names.fasta",
-                          seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
-fastaLength <- lengthFasta[which(getLength(lengthFasta) >= 600)]       
+lengthFasta <- read.fasta(file = "../rrcompendium/analysis/data/raw_data/Sicydium_COI_3-names.fasta",
+                          seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)                     # 586 seqs
+fastaLength <- lengthFasta[which(getLength(lengthFasta) >= 600)]
 write.fasta(sequences = fastaLength, names = names(fastaLength),
-            file.out = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_4-lengths.fasta")  # 401 seqs
+            file.out = "../rrcompendium/analysis/data/raw_data/Sicydium_COI_4-lengths.fasta")             # 401 seqs
 
 ### Removing DUPLICATE sequences
 # using "seqinr" to do it 
 # for not using attributes to name sequences
-duplicatesFasta <- read.fasta("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_4-lengths.fasta",
-                              set.attributes = FALSE) 
+duplicatesFasta <- read.fasta("../rrcompendium/analysis/data/raw_data/Sicydium_COI_4-lengths.fasta", set.attributes = FALSE) 
+
 seqnames <- names(duplicatesFasta)
 dups <- grep(TRUE,duplicated(duplicatesFasta))
 uniqueNames <- seqnames[-dups]
 uniqueSeqs <- duplicatesFasta[-dups] 
 write.fasta(sequences = uniqueSeqs, names = uniqueNames,
-            file.out = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta")     # 204 seqs
+            file.out = "../rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta")               # 204 seqs
 
 # adding samples from Cuba (n=6)
-#mySamples <- read.fasta("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_Cuba.fasta")
-#write.fasta(mySamples, names(mySamples),
- #           "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta", open = "a")    # 210 seqs
+mySamples <- read.fasta("../rrcompendium/analysis/data/raw_data/Sicydium_COI_Cuba.fas")
+write.fasta(mySamples, names(mySamples),
+            "../rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta", open = "a")              # 210 seqs
+
 
 ```
 
 ```{r alignment}
 invisible({capture.output({                ### ALIGNING the sequences        # libraries "msa" and "Biostrings"
 
-alignmentFasta <- readDNAStringSet("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta")
+alignmentFasta <- readDNAStringSet("../rrcompendium/analysis/data/raw_data/Sicydium_COI_5-dupli.fasta")
 ClustalOAlignment <- msa(alignmentFasta, "ClustalOmega")
-#print(ClustalOAlignment, showConsensus=FALSE, showNames=TRUE, show="complete") 
+# print(ClustalOAlignment, showConsensus=FALSE, showNames=TRUE, show="complete") 
 
-# REMOVING samples with to many GAPS at the beginning and the end of the sequences 
-colmask(ClustalOAlignment) <- IRanges(start=c(1,666),end=c(25,679))                
+# Checking for the position of sequences that were not edited properly so they still have nucleotides different that A, G, C, T 
+nucType <- alphabetFrequency(ClustalOAlignment)
+unknownNuc <- nucType[, c(5:14)]
+unknownPosition <- which(unknownNuc > 0, arr.ind=T)
+
+# REMOVING samples with too many GAPS at the beginning and the end of the sequences and UNKNOWN nucleotides (ex.: W, K, S) 
+colmask(ClustalOAlignment) <- IRanges(start=c(1,666),end=c(25,679))
+rowmask(ClustalOAlignment) <- IRanges(start=c(1),end=c(1))
 ClustalOAlignment2 <- as(ClustalOAlignment, "DNAStringSet")
 writeXStringSet(ClustalOAlignment2,
-                file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_6-alignment.fasta")   # 210 seqs -- 640 bp
+                file="../rrcompendium/analysis/data/raw_data/Sicydium_COI_6-alignment.fasta")           # 209 seqs -- 640 bp
 
 ### Replacing gaps at the begining and end with Ns
-gapsFasta <- read.fasta(file = "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_6-alignment.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+gapsFasta <- read.fasta(file = "../rrcompendium/analysis/data/raw_data/Sicydium_COI_6-alignment.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE, apply.mask = FALSE)
+#getLength(gapsFasta)
 replacingGaps <- lapply(gapsFasta, function(x) gsub("-", "N", x))
-write.fasta(replacingGaps, names(replacingGaps), "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")
+write.fasta(replacingGaps, names(replacingGaps), "../rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")
 
 })})
 
@@ -255,10 +262,9 @@ write.fasta(replacingGaps, names(replacingGaps), "/Users/sheila_ffish/Documents/
 
 
 ```{r warning = FALSE}
-invisible({capture.output({
-                                          ### GETTING the READING FRAME     --- library "systemPipeR"
-
-alignedFasta <- readDNAStringSet("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta") 
+invisible({capture.output({               ### GETTING the READING FRAME     --- library "systemPipeR"
+                                          
+alignedFasta <- readDNAStringSet("../rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta") 
 
 getRF <- function(alignedFasta){
   if (class(alignedFasta)!= c("DNAStringSet")){
@@ -267,14 +273,13 @@ getRF <- function(alignedFasta){
   if (any(letterFrequency(alignedFasta, "-", as.prob=TRUE))>0){
     stop("This function do not take gaps as values/strings. Go and replaced gaps with Ns (if the gaps are at the begining or end of the sequences) or choose a subset of sequences that do not contain gaps")
   }
-  # predORF() do not read seqs with gaps   # predicts longest ORF for sense strand in each query sequence               
-  orf1 <- predORF(alignedFasta[1:10], n=1, type="df", mode="orf", strand="sense")                                       
+  orf1 <- predORF(alignedFasta[1:10], n=1, type="df", mode="orf", strand="sense")   # predORF() do not read seqs with gaps
+  # predicts longest ORF for sense strand in each query sequence                                                                          
   longestSeq1 <- orf1$start[orf1$width == max(orf1$width)]
   codonPosition1 <- longestSeq1[1]/3
   codonConfirmation1 <- round(codonPosition1)
-  length(alignedFasta)
   if (codonPosition1==codonConfirmation1){
-   file.rename("/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta", "/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")                     # 640 bp
+   file.rename("../rrcompendium/analysis/data/raw_data/Sicydium_COI_7-gaps.fasta", "../rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")                     # 640 bp
   print("The Reading Frame of these seqs is +1, no further action is required, go to modelTesting")
     } else {
     if (codonPosition1!=codonConfirmation1){
@@ -288,14 +293,14 @@ getRF <- function(alignedFasta){
       codonPosition2 <- (longestSeq2[1]+2)/3
       codonConfirmation2 <- round(codonPosition2)
       if (codonPosition2==codonConfirmation2){
-        writeXStringSet(newRF2, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")
+        writeXStringSet(newRF2, file="../rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")
       print("The Reading Frame of these seqs was +2, new fasta file created, go to modelTesting")
       } else {
       if (codonPosition2!=codonConfirmation2){
         #remove first nucleotide position
         tempLength <- length(alignedFasta[[1]])
         newRF3 <- subseq(alignedFasta, start = 3, end = tempLength)
-        writeXStringSet(newRF3, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")    # 638 bp
+        writeXStringSet(newRF3, file="../rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta")    # 638 bp
       print("The Reading Frame of these seqs was +3, new fasta file created, go to modelTesting")
      }
    }  
@@ -304,7 +309,7 @@ getRF <- function(alignedFasta){
 }
 
 
-getRF(alignedFasta)
+suppressWarnings(suppressMessages(print(getRF(alignedFasta))))
 
 })})
 
@@ -318,7 +323,10 @@ The nucleotide substitution model that best explained our data was estimated usi
 
 # libraries ape and phangorn (modelTest is a function of the package phangorn)
 
-fastaRF <- read.dna(file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
+fastaRF <- read.dna(file="../rrcompendium/analysis/data/raw_data/Sicydium_COI_newRF.fasta", format = "fasta")
+
+fastaRF1 <- read.fasta(file = "../rrcompendium/analysis/data/raw_data/Sicydium_COI_6-alignment.fasta", seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE, apply.mask = FALSE)
+getLength(fastaRF1)
 
 getBestModel <- function(fastaRF){
   if (class(fastaRF)!= c("DNAbin")){
@@ -330,7 +338,7 @@ getBestModel <- function(fastaRF){
   return(modelChoiceSorted)
 }
   
-bestModel <- getBestModel(fastaRF)                # getting the AICc for each competing model
+bestModel <- suppressWarnings(suppressMessages(getBestModel(fastaRF)))               # getting the AICc for each competing model
 
 # DISCLAIMER: visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
 # The alternative is to get automatically the first model that the data.frame modelTest gives and storing it as a variable. In order to get this as reproducible as possible, I chose the alternative.
@@ -349,36 +357,42 @@ fitStart = eval(get(bestModel$Model[which.min(bestModel$AICc)], env), env)    # 
 #set.seed(2015-07-01)
 
 fit = optim.pml(fitStart, rearrangement = "stochastic", optGamma=TRUE, optInv=FALSE, model="HKY")     # seeking a maximum likelihood solution
-#set.seed(123)    # getting the same tree topology each time the code runs 
+set.seed(123)    # getting the same tree topology each time the code runs 
 bs = bootstrap.pml(fit, bs=100, optNni=TRUE, multicore=TRUE, mc.cores = 4)
 
 # saving the tree in the folder 'analysis/figures/'
 bsTree <- plotBS(midpoint(fit$tree), bs, p = 75, type="p", bs.col = "blue")     # fit$tree is where the optimal tree is stored
 optimalTree <- plotBS(bsTree, type = "p", cex = 0.2, font = 1)
 # export tree with bootstrap values as node labels
-write.tree(optimalTree, file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/derived_data/Sicydium_ML_tree.tre")                     
+write.tree(optimalTree, file="../rrcompendium/analysis/data/derived_data/Sicydium_ML_tree.tre")                     
 
 
 ```
 
 # Results
 
-(Figure 3.1)
-
 hshdhdhdh
+
+```{r demo-plot1, fig.cap="A plot of random numbers"}
+plot(rnorm(10))
+```
 
 
 ```{r inline-code2, include = TRUE, results='hide'}
 # the result wont be displayed in the final document
 loglikelihood <- round(-1*(as.numeric(fit[1])), 2)
-loglikelihood
 
 ```
 
-```{r Sicydium_ML_tree, fig.cap = paste("ML phylogenetic tree  (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus Sicydium (n=197). Sequences highlited in green represent samples from Cuba (n=6). Numbers on branches represent boostrap values higher than 70.", fig.width = 11.8, fig.height = 9.84)}
+```{r Sicydium_ML_tree, fig.cap = paste("ML phylogenetic tree  (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus *Sicydium*. Sequences highlited in green represent samples from Cuba. Numbers on branches represent boostrap values higher than 70.")}
+
+# , fig.width = 11.8, fig.height = 10
 
 # Editing and visualizing the tree to represent --- library: ggtree
-tree <- read.tree(file="/Users/sheila_ffish/Documents/rrcompendium/analysis/data/derived_data/Sicydium_ML_tree.tre")
+tree <- read.tree(file="../rrcompendium/analysis/data/derived_data/Sicydium_ML_tree.tre")
+
+# checkinf whether the tree is rooted
+rootedTree <- is.rooted(tree)   # package ape. showing the tree root: geom_rootpoint(color="pink", size=5) 
 
 # getting the node number for each main clade. This info is important because those #s are the one needed to edit each main clade/species
 nodeNumber <- ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue", size = 1) # looks horrible but it gives the clade number
@@ -386,25 +400,30 @@ nodeNumber <- ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue",
 Sicydium_ML_tree <-suppressWarnings(suppressMessages(print(ggtree(tree, size = .4) + 
   xlim(-0.02, 0.26) +
   geom_treescale(x=0, y=-1.5, offset = -4) + 
-  geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 70), size = 3, col= "black", vjust = -0.3, hjust=1.9, na.rm = FALSE) + 
+  geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 80), size = 3, col= "black", vjust = -0.3, hjust=1.9, na.rm = FALSE) + 
   geom_nodepoint(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 70), size = 1, col= "black") + 
-  geom_cladelabel(node=218, label="Sicydium plumieri", color="red", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=117, label="Sicydium brevifile", color="blue", hjust = -0.05, vjust = 0.3, fontsize = 3.5, fontface="italic") + 
-  geom_cladelabel(node=320, label="Sicydium salvini", color="purple", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=328, label="Sicydium punctatum", color="brown", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=379, label="Sicydium buscki", color="black", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=415, label="Sicydium crenilabrum", color="orange", hjust = -0.03, vjust = 0.3, fontsize = 3.5, offset = 0.004, fontface="italic") +
-  geom_cladelabel(node=212, label="Awaous spp.", color="darkgreen", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") +
-  geom_hilight(node=377, fill="green") + 
-  theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm")))))
+  geom_cladelabel(node=216, label="Sicydium plumieri", color="red", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=108, label="Sicydium brevifile", color="blue", hjust = -0.01, vjust = 0.2, fontsize = 3.5, fontface="italic") + 
+  geom_cladelabel(node=408, label="Sicydium salvini", color="purple", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=356, label="Sicydium punctatum", color="brown", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=320, label="Sicydium buscki", color="black", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=407, label="Sicydium crenilabrum", color="orange", hjust = -0.03, vjust = 0.3, fontsize = 3.5, offset = 0.004, fontface="italic") +
+  geom_cladelabel(node=211, label="Awaous spp.", color="darkgreen", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") +
+  geom_hilight(node=336, fill="green") +
+  #geom_hilight(node=332, fill="green") +
+  geom_hilight(node=135, fill="green") +
+  geom_hilight(node=121, fill="green") +
+  geom_hilight(node=120, fill="green") +
+  geom_hilight(node=139, fill="green") +
+  theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"))))) 
 
-#Sicydium_ML_tree
+
 ```
 
 
 
 
-```{r demo-plot, fig.cap="A plot of random numbers"}
+```{r demo-plot2, fig.cap="A plot of random numbers"}
 plot(rnorm(10))
 ```
 
