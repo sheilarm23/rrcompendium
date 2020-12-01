@@ -91,7 +91,11 @@ package.Bioconductor <- lapply(packagesBioconductor, FUN = function(y) {
 
 # Introduction
 
-Here is a citation [@Marwick2017]
+The family Gobiidae includes almost 2,000 species of marine, freshwater, and brackish fishes worldwide [@eschmeyer2020catalog]. This group is mostly represented by small-sized and bottom-dweller fishes found in tropical and subtropical waters. Such a small size along with cryptic body colors and the lack of diagnostic characters to distinguish among species and even genera is still a challenge for science in the 21st century. Only in the last ten years, more than a hundred gobiid species were described [@eschmeyer2020catalog]. However, the use of molecular tools applied to species-level identification has brought some light into the taxonomy and systematic of these fish taxa [@thacker2011phylogeny, @victor2014three, @keith2017schismatogobius]. 
+
+Although most species in the family Gobiidae inhabit marine ecosystems, most species inhabiting freshwater or estuarine ecosystems display an amphidromous lifecycle [@myers1949usage, @bell1999overview]. This means that adults spawn in freshwater and when eggs hatch, they are taken downstream by river flow into the ocean. Then, after spending from a few weeks to a few months (depending on the species), postlarvae return to rivers. This moment of postlarval returning is particularly fascinating because million of them gather at river mouth as they start going upstream. This migratory behavior, particularly, when the postlarvae are going back to rivers, supports an artisanal fishery around the world [@bell1999overview, @mcdowall2007amphidromy]. Known as goby-fry fisheries, this is a common practice in several countries in the Indo-Pacific [@asis2013first], the Pacific [@castellanos2011goby], and the Caribbean [@neal2009factors]. The problem with it is that during the last years insufficient management of these fisheries has led to considerable reduction in catches [@bell1999overview]. In addition, information of the identity of the species comprising these goby-fry fisheries in many places is still incomplete [@castellanos2011goby, @asis2013first]. 
+
+Gobies have been poorly studied in Cuba and available information on their identification and distribution is not conclusive [@lara2010dna]. The fish fry fishery in Eastern Cuba known as “Teti” represents a local fishery and there is no information about the exploitation of this natural resource outside this region. Base on other reports in the Caribbean region [@neal2009factors], some authors claimed that the gobies *Sicydium plumieri* an *Sicydium punctatum* comprises the “Teti” fisheries in Cuba, but there is no solid evidence on that yet. Fishing “teti” has been a common practice for several years but an exponential increase of tourism in Eastern Cuba, due to recent economic policy changes, represents an additional threat to our biodiversity. Besides, if “teti” refers to a single species or a species complex is still a knowledge gap in Cuba. The present study aims to identify the Fish Fry "Teti" Fishery in Eastern Cuba using molecular markers.
 
 # Methods
 
@@ -248,6 +252,7 @@ write.fasta(mySamples, names(mySamples), here("analysis/data/raw_data/Sicydium_C
 invisible({capture.output({                ### ALIGNING the sequences        # libraries "msa" and "Biostrings"
 
 alignmentFasta <- readDNAStringSet(here("analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"))
+set.seed(123)
 ClustalOAlignment <- msa(alignmentFasta, "ClustalOmega")
 # print(ClustalOAlignment, showConsensus=FALSE, showNames=TRUE, show="complete") 
 
@@ -289,7 +294,7 @@ getRF <- function(alignedFasta){
   # predicts longest ORF for sense strand in each query sequence                                                                          
   longestSeq1 <- orf1$start[orf1$width == max(orf1$width)]
   codonPosition1 <- longestSeq1[1]/3
-  codonConfirmation1 <- round(codonPosition1)
+  codonConfirmation1 <- round(codonPosition1)                         # 640 bp
   if (codonPosition1==codonConfirmation1){
    file.rename(here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta"), here("analysis/data/raw_data/Sicydium_COI_newRF.fasta")) 
   print("The Reading Frame of these seqs is +1, no further action is required, go to modelTesting")
@@ -311,7 +316,7 @@ getRF <- function(alignedFasta){
       if (codonPosition2!=codonConfirmation2){
         #remove first nucleotide position
         tempLength <- length(alignedFasta[[1]])
-        newRF3 <- subseq(alignedFasta, start = 3, end = tempLength)
+        newRF3 <- subseq(alignedFasta, start = 3, end = tempLength)   # 638 bp
         writeXStringSet(newRF3, here(file="analysis/data/raw_data/Sicydium_COI_newRF.fasta"))                                
       print("The Reading Frame of these seqs was +3, new fasta file created, go to modelTesting")
      }
@@ -330,7 +335,7 @@ suppressWarnings(suppressMessages(print(getRF(alignedFasta))))
 
 The nucleotide substitution model that best explained our data was estimated using the function modelTest from the R package *phangorn* [@schliep2011phangorn]. The phylogenetic tree was reconstructed following a maximum likelihood approach [@felsenstein1981evolutionary] using the functions optim.pml and bootstrap.pml, also from the package *phangorn*. The tree was generated and visualized using the R package *ggtree* [@yu2017ggtree].
 
-This paper was completely developed in RStudio, PBC (“RStudio”) [@rstudio2020]. R code and data are available as a research compendium for generating this paper using the following link: https://github.com/sheilarm23/rrcompendium.git    
+This paper was completely developed in RStudio, PBC (“RStudio”) [@rstudio2020]. R code and data are available as a research compendium for generating this paper using the following link: https://github.com/sheilarm23/rrcompendium.git.    
 
 ```{r bestModel, warning = FALSE}
                                       # FINDING THE BEST NUCLEOTIDE SUSBSTITUTION MODEL
@@ -379,6 +384,7 @@ bsTree <- plotBS(midpoint(fit$tree), bs, p = 75, type="p", bs.col = "blue")     
 set.seed(123)
 optimalTree <- plotBS(bsTree, type = "p", cex = 0.2, font = 1)
 # export tree with bootstrap values as node labels
+set.seed(123)
 write.tree(optimalTree, here(file="analysis/data/derived_data/Sicydium_ML_tree.tre"))  
 
 
@@ -403,13 +409,14 @@ tree <- read.tree(here(file="analysis/data/derived_data/Sicydium_ML_tree.tre"))
 # checking that the tree is rooted
 rootedTree <- is.rooted(tree)   # package ape. showing the tree root: geom_rootpoint(color="pink", size=5) 
 # getting the node number for each main clade. This info is important because those #s are the one needed to edit each main clade/species
+set.seed(123)
 nodeNumber <- ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue", size = 1) # looks horrible but it gives the clade number
 
 ```
 
 # Results
 
-The final alignment comprised 209 sequences, each one of 639 base pairs. Figure \@ref(fig:Sicydium_ML_tree) depicts the ML tree (-lnL = `r loglikelihood`) showing the relationships among all COI sequences identified as *Sicydium* spp. available in GenBank. Six monophyletic clades matching known *Sicydium* species were recovered with strong support. The phylogenetic reconstruction shows that the six samples from Cuba, highlighted in green, nested within *Sicydium buscki* Evermann & Clark, 1906.
+The final alignment comprised 209 sequences, each one of 639 base pairs. Figure 3.1 depicts the ML tree (-lnL = `r loglikelihood`) showing the relationships among all COI sequences identified as *Sicydium* spp. available in GenBank. Six monophyletic clades matching known *Sicydium* species were recovered with strong support. The phylogenetic reconstruction shows that the six samples from Cuba, highlighted in green, nested within *Sicydium buscki* Evermann & Clark, 1906.
 
 
 ```{r Sicydium_ML_tree, fig.cap=paste("ML phylogenetic tree (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus *Sicydium*. Sequences highlited in green represent samples from Cuba. Numbers on branches represent boostrap values higher than 70.")}
