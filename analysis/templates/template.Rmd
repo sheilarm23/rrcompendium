@@ -4,6 +4,9 @@ author:
 - author 1
 - other author
 date: '`r Sys.Date()`'
+institute:
+  - UofO: [UofO]
+  - UofA: [UofA]
 abstract: "My abstract \n"
 output: word_document
 ---

@@ -409,35 +409,35 @@ rootedTree <- is.rooted(tree)   # package ape. showing the tree root: geom_rootp
 # getting the node number for each main clade. This info is important because those #s are the one needed to edit each main clade/species
 set.seed(123)
 nodeNumber <- ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue", size = 1) # looks horrible but it gives the clade number
-nodeNumber
 
 ```
 
 # Results
 
-The final alignment comprised 209 sequences, each one of 639 base pairs. Figure 3.1 depicts the ML tree (-lnL = `r loglikelihood`) showing the relationships among all COI sequences identified as *Sicydium* spp. available in GenBank. Six monophyletic clades matching known *Sicydium* species were recovered with strong support. The phylogenetic reconstruction shows that the six samples from Cuba, highlighted in green, nested within *Sicydium buscki* Evermann & Clark, 1906.
+The final alignment comprised 209 sequences, each one of 639 base pairs. Figure \@ref(fig:SicydiumTree) depicts the ML tree (-lnL = `r loglikelihood`) showing the relationships among all COI sequences identified as *Sicydium* spp. available in GenBank. Six monophyletic clades matching known *Sicydium* species were recovered with strong support. The phylogenetic reconstruction shows that the six samples from Cuba, highlighted in green, nested within *Sicydium buscki* Evermann & Clark, 1906.
 
 
-```{r SicydiumTree, fig.cap=paste("ML phylogenetic tree (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus *Sicydium*. Sequences highlited in green represent samples from Cuba. Numbers on branches represent boostrap values higher than 70.")}
+```{r plot2, fig.width = 15, fig.height = 19, fig.cap=paste("ML phylogenetic tree (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus *Sicydium*. Sequences highlited in green represent samples from Cuba. Numbers on branches represent boostrap values higher than 70.")}
 
-# , fig.width = 11.8, fig.height = 10
-
-ggtree(tree, size = .4) + 
+ggtree(tree, size = .8) + 
   xlim(-0.02, 0.26) +
-  geom_treescale(x=0, y=-1.5, offset = -4) + 
-  geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 80), size = 3, col= "black", vjust = -0.3, hjust=1.9, na.rm = FALSE) + 
-  geom_nodepoint(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 80), size = 1, col= "black") + 
-  geom_cladelabel(node=215, label="Sicydium plumieri", color="red", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=108, label="Sicydium brevifile", color="blue", hjust = -0.01, vjust = 0.2, fontsize = 3.5, fontface="italic") + 
-  geom_cladelabel(node=408, label="Sicydium salvini", color="purple", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=320, label="Sicydium punctatum", color="brown", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=371, label="Sicydium buscki", color="black", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=407, label="Sicydium crenilabrum", color="orange", hjust = -0.03, vjust = 0.3, fontsize = 3.5, offset = 0.004, fontface="italic") +
-  geom_cladelabel(node=211, label="Awaous spp.", color="darkgreen", hjust = -0.07, fontsize = 3.5, offset = 0.002, fontface="italic") +
+  geom_treescale(x=0, y=-1.5, offset = -4, fontsize = 6, linesize = 0.8) + 
+  geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 82), size = 6, col= "black", vjust = -0.3, hjust=1.9, na.rm = FALSE) + 
+  geom_nodepoint(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 82), size = 2, col= "black") + 
+  geom_cladelabel(node=215, label="Sicydium plumieri", color="red", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=108, label="Sicydium brevifile", color="blue", hjust = -0.008, vjust = 0.8, fontsize = 6, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=408, label="Sicydium salvini", color="purple", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=320, label="Sicydium punctatum", color="brown", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=371, label="Sicydium buscki", color="black", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=407, label="Sicydium crenilabrum", color="orange", hjust = -0.03, vjust = 0.1, fontsize = 6, offset = 0.004, fontface="italic") +
+  geom_cladelabel(node=211, label="Awaous spp.", color="darkgreen", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") +
   # samples Sicydium_COI_Cuba2,4,6 were nested within this clde but the distance is too short to be displayed in the tree
-  geom_hilight(node=191, fill="green") +
-  geom_hilight(node=166, fill="green") +
-  geom_hilight(node=177, fill="green") +
+  geom_hilight(node=191, fill="green", alpha = 0.7, extend=.004) +
+  geom_hilight(node=166, fill="green", alpha = 0.7, extend=.004) +
+  geom_hilight(node=177, fill="green", alpha = 0.7, extend=.004) +
+  geom_hilight(node=173, fill="green", alpha = 0.7, extend=.004) +
+  geom_hilight(node=171, fill="green", alpha = 0.7, extend=.004) +
+  geom_hilight(node=172, fill="green", alpha = 0.7, extend=.004) +
   theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm")) 
 
 # suppressWarnings(suppressMessages(print(Sicydium_ML_tree)))
