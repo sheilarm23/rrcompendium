@@ -283,14 +283,14 @@ invisible({capture.output({               ### GETTING the READING FRAME     --- 
                                           
 alignedFasta <- readDNAStringSet(here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")) 
 
-getRF <- function(alignedFasta){
-  if (class(alignedFasta)!= c("DNAStringSet")){
+getRF <- function(x){
+  if (class(x)!= c("DNAStringSet")){
     stop("This function only takes files of class 'DNAStringSet'. Use package 'Biostrings' to read the input file")
   }
-  if (any(letterFrequency(alignedFasta, "-", as.prob=TRUE))>0){
+  if (any(letterFrequency(x, "-", as.prob=TRUE))>0){
     stop("This function do not take gaps as values/strings. Go and replaced gaps with Ns (if the gaps are at the begining or end of the sequences) or choose a subset of sequences that do not contain gaps")
   }
-  orf1 <- predORF(alignedFasta[1:10], n=1, type="df", mode="orf", strand="sense")   # predORF() do not read seqs with gaps
+  orf1 <- predORF(x[1:10], n=1, type="df", mode="orf", strand="sense")   # predORF() do not read seqs with gaps
   # predicts longest ORF for sense strand in each query sequence                                                                          
   longestSeq1 <- orf1$start[orf1$width == max(orf1$width)]
   codonPosition1 <- longestSeq1[1]/3
@@ -300,9 +300,9 @@ getRF <- function(alignedFasta){
   print("The Reading Frame of these seqs is +1, no further action is required, go to modelTesting")
     } else {
     if (codonPosition1!=codonConfirmation1){
-      tempLength <- length(alignedFasta[[1]])
+      tempLength <- length(x[[1]])
       #remove first nucleotide position
-      newRF2 <- subseq(alignedFasta, start = 2, end = tempLength)      # 639 bp
+      newRF2 <- subseq(x, start = 2, end = tempLength)      # 639 bp
       # getting new RF from the new alignment with -1 bp.
       orf2 <- predORF(newRF2[1:10], n=1, type="df", mode="orf", strand="sense") 
       # checking size gain
@@ -315,8 +315,8 @@ getRF <- function(alignedFasta){
       } else {
       if (codonPosition2!=codonConfirmation2){
         #remove first nucleotide position
-        tempLength <- length(alignedFasta[[1]])
-        newRF3 <- subseq(alignedFasta, start = 3, end = tempLength)   # 638 bp
+        tempLength <- length(x[[1]])
+        newRF3 <- subseq(x, start = 3, end = tempLength)   # 638 bp
         writeXStringSet(newRF3, here(file="analysis/data/raw_data/Sicydium_COI_newRF.fasta"))                                
       print("The Reading Frame of these seqs was +3, new fasta file created, go to modelTesting")
      }
@@ -326,7 +326,7 @@ getRF <- function(alignedFasta){
 }
 
 
-suppressWarnings(suppressMessages(print(getRF(alignedFasta))))
+suppressWarnings(suppressMessages(print(getRF(x = alignedFasta))))
 
 })})
 
@@ -344,18 +344,18 @@ This paper was completely developed in RStudio, PBC (“RStudio”) [@rstudio202
 
 fastaRF <- read.dna(here(file="analysis/data/raw_data/Sicydium_COI_newRF.fasta"), format = "fasta")
 
-getBestModel <- function(fastaRF){
-  if (class(fastaRF)!= c("DNAbin")){
+getBestModel <- function(y){
+  if (class(y)!= c("DNAbin")){
     stop("This function only takes files of class 'DNAbin'. Use package 'ape' to read the input file")
   }
-  formatPhyDat <- as.phyDat(fastaRF)                #getting the class used by modelTest: phyDat or pml
+  formatPhyDat <- as.phyDat(y)                #getting the class used by modelTest: phyDat or pml
   set.seed(123)
   modelChoice <- modelTest(formatPhyDat, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 4)
   modelChoiceSorted <- as.data.frame(modelChoice[order(modelChoice$AICc),])
   return(modelChoiceSorted)
 }
   
-bestModel <- suppressWarnings(suppressMessages(getBestModel(fastaRF)))               # getting the AICc for each competing model
+bestModel <- suppressWarnings(suppressMessages(getBestModel(y = fastaRF)))               # getting the AICc for each competing model
 
 # DISCLAIMER: visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
 # The alternative is to get automatically the first model that the data.frame modelTest gives and storing it as a variable. In order to get this as reproducible as possible, I chose the alternative.
@@ -363,7 +363,7 @@ bestModel <- suppressWarnings(suppressMessages(getBestModel(fastaRF)))          
 
 ```
 
-```{r tree, include=TRUE, results = 'hide', fig.show='hide', warning = FALSE}
+```{r tree, echo = FALSE, include=TRUE, results = 'hide', fig.show='hide', warning = FALSE}
 
                                                         # BUILINDG THE TREE
 # --- library: phangorn
@@ -399,7 +399,7 @@ loglikelihood
 ```
 
 
-```{r editingTree}
+```{r editingTree, echo = FALSE}
 
 # , fig.width = 11.8, fig.height = 10
 

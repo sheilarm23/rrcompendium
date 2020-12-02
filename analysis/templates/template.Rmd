@@ -4,8 +4,8 @@ author:
 - author 1
 - other author
 date: '`r Sys.Date()`'
-output: word_document
 abstract: "My abstract \n"
+output: word_document
 ---
 
 ```{r setup, include=FALSE}

@@ -5,10 +5,10 @@
 \title{getBestModel
 This function provides a dataframe with the list of models of nucleotide evolution sorted by AICc (from lowest to highest)}
 \usage{
-getBestModel(fastaRF)
+getBestModel(y)
 }
 \arguments{
-\item{fastaRF}{takes as input a dataset of aligned sequences of the same length and known ORF}
+\item{y}{takes as input a dataset of aligned sequences of the same length and known ORF}
 }
 \value{
 returns a dataframe with the list of models of evolution sorted by AICc, from the lowest to the highest AICc value
