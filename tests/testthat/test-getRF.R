@@ -5,10 +5,10 @@ Seq1 <- c("ANTCATTTGA")
 Seq2 <- DNAString("TTGAAA-CTC-N")
 
 test1 <- test_that("getRF is a function", {
-  expect_is(getBestModel, "function")
+  expect_is(getRF, "function")
 })
 
-test2 <- test_that("getRF errors out when a file of class other than DNAStringSet is taken", {
+test2 <- test_that("getRF errors out when a file of class other than -DNAStringSet- is taken", {
   expect_error(getRF(Seq1))
 })
 
