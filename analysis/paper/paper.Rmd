@@ -278,7 +278,7 @@ write.fasta(replacingGaps, names(replacingGaps), here("analysis/data/raw_data/Si
 ```
 
 
-```{r warning = FALSE}
+```{r, getRF, warning = FALSE}
 invisible({capture.output({               ### GETTING the READING FRAME     --- library "systemPipeR"
                                           
 alignedFasta <- readDNAStringSet(here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")) 
@@ -337,7 +337,7 @@ The nucleotide substitution model that best explained our data was estimated usi
 
 This paper was completely developed in RStudio, PBC (“RStudio”) [@rstudio2020]. R code and data are available as a research compendium for generating this paper using the following link: https://github.com/sheilarm23/rrcompendium.git.    
 
-```{r bestModel, warning = FALSE}
+```{r getBestModel, warning = FALSE}
                                       # FINDING THE BEST NUCLEOTIDE SUSBSTITUTION MODEL
 
 # libraries ape and phangorn (modelTest is a function of the package phangorn)
