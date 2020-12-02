@@ -1,5 +1,6 @@
 install.packages('knitr')
 install.packages('testthat')
+install.packages('ape')
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 BiocManager::install("Biostrings")
@@ -7,6 +8,7 @@ BiocManager::install("Biostrings")
 library(knitr)
 library(testthat)
 library(Biostrings)
+library(ape)
 
 knitr::knit('analysis/paper/paper.Rmd', tangle=TRUE)
 
