@@ -6,7 +6,7 @@ SeqB <- as.DNAbin("TAGTAGGTACTGCCC", "TAGTAGGTACTGCCC", "TAGTAGGTACTGCCC", "TAGT
 
 test_that("getBestModel", {
 
-  expect_is(getBestModel, "function")  # getBestModel is a function
+  #expect_is(getBestModel, "function")  # getBestModel is a function
 
   expect_error(getBestModel(SeqA))     # getBestModel errors out when a file of class other than "DNAbin" is taken
 
