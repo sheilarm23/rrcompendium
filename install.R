@@ -8,8 +8,9 @@ install.packages("ape")
 install.packages("seqinr")
 install.packages("phangorn")
 install.packages("BiocManager")
-install.packages("msa")
-install.packages("Biostrings")
-install.packages("systemPipeR")
-install.packages("ggtree")
+BiocManager::install("msa")
+BiocManager::install("Biostrings")
+BiocManager::install("systemPipeR")
+BiocManager::install("ggtree")
+
 
