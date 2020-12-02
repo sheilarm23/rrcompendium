@@ -1,14 +1,18 @@
 install.packages('knitr')
 install.packages('testthat')
 install.packages('ape')
+install.packages('phangorn')
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 BiocManager::install("Biostrings")
+BiocManager::install("systemPipeR")
 
 library(knitr)
 library(testthat)
 library(Biostrings)
 library(ape)
+library(phangorn)
+library(systemPipeR)
 
 knitr::knit('analysis/paper/paper.Rmd', tangle=TRUE)
 
