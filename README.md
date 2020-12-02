@@ -7,19 +7,18 @@
 
 This repository contains the data and code for our future paper:
 
-> Rodriguez-Machado, S., Rodríguez-Cabrera, T.M., and Chakrabarty, P.
-> (2020). *The Truth is Revealed: Identity of the Fish Fry “Teti”
-> Fishery in Eastern Cuba*. Name of journal/book
+> Rodriguez-Machado, S. and Rodríguez-Cabrera, T.M. (2020). *The Truth
+> is Revealed: Identity of the Fish Fry “Teti” Fishery in Eastern Cuba*.
+> Name of journal/book
 > [https://doi.org/{DOI-to-paper}](https://doi.org/%7BDOI-to-paper%7D)
 
 which is still a work in progress…
 
 Our pre-print will be online here:
 
-> Rodriguez-Machado, S., Rodríguez-Cabrera, T.M., and Chakrabarty, P.
-> (2020). *The Truth is Revealed: Identity of the Fish Fry “Teti”
-> Fishery in Eastern Cuba*. Name of journal/book, Accessed 26 Nov 2020.
-> Online at
+> Rodriguez-Machado, S. and Rodríguez-Cabrera, T.M. (2020). *The Truth
+> is Revealed: Identity of the Fish Fry “Teti” Fishery in Eastern Cuba*.
+> Name of journal/book, Accessed 02 Dec 2020. Online at
 > [https://doi.org/{DOI-to-compendium}](https://doi.org/%7BDOI-to-compendium%7D)
 
 ### How to cite
@@ -28,7 +27,7 @@ Please cite this compendium as:
 
 > Rodriguez-Machado, S. (2020). *Compendium of R code and data for `The
 > Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern
-> Cuba`*. Accessed 26 Nov 2020. Online at
+> Cuba`*. Accessed 02 Dec 2020. Online at
 > [https://doi.org/{DOI-to-compendium}](https://doi.org/%7BDOI-to-compendium%7D)
 
 ## Contents
