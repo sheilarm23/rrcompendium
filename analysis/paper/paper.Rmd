@@ -59,7 +59,7 @@ knitr::opts_chunk$set(
 ```{r}
 
 # INSTALLING PACKAGES AND LIBRARIES - if needed
-packages = c("BiocManager", "raster", "ggplot2", "ggthemes", "here",  
+packages = c("BiocManager", "raster", "ggplot2", "ggthemes", "mapproj", "here",  
              "rentrez", "ape", "seqinr", "phangorn")
 
 package.check <- lapply(packages, FUN = function(x) {

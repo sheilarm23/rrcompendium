@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "README-"
 )
-# Please put your title here to include it in the file below.
+
 Title <- 'The Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern Cuba'
 
 ```
@@ -65,7 +65,7 @@ Docker images to ensure a consistent and reproducible computational
 environment. This way will take a few minutes to be ready but you will not need to install any packages on your computer.
 
 You can download the compendium as a zip from from this URL:
-[master.zip](/archive/master.zip). After unzipping:
+[master.zip](https://github.com/sheilarm23/rrcompendium/archive/master.zip). After unzipping:
 - open the `.Rproj` file in RStudio
 - run `devtools::install()` to ensure you have the packages this analysis depends on (also listed in the
 [DESCRIPTION](/DESCRIPTION) file).

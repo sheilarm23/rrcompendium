@@ -62,12 +62,13 @@ environment. This way will take a few minutes to be ready but you will
 not need to install any packages on your computer.
 
 You can download the compendium as a zip from from this URL:
-[master.zip](/archive/master.zip). After unzipping: - open the `.Rproj`
-file in RStudio - run `devtools::install()` to ensure you have the
-packages this analysis depends on (also listed in the
-[DESCRIPTION](/DESCRIPTION) file). - finally, open
-`analysis/paper/paper.Rmd` and knit to produce the `paper.docx`, or run
-`rmarkdown::render("analysis/paper/paper.Rmd")` in the R console
+[master.zip](https://github.com/sheilarm23/rrcompendium/archive/master.zip).
+After unzipping: - open the `.Rproj` file in RStudio - run
+`devtools::install()` to ensure you have the packages this analysis
+depends on (also listed in the [DESCRIPTION](/DESCRIPTION) file). -
+finally, open `analysis/paper/paper.Rmd` and knit to produce the
+`paper.docx`, or run `rmarkdown::render("analysis/paper/paper.Rmd")` in
+the R console
 
 Makefile: Whatever the option you choose to explore this compendium, you
 can also use the makefile (`/analysis/makefile`) in the terminal (`make
