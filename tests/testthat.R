@@ -15,7 +15,7 @@ library(ape)
 #library(systemPipeR)
 
 knitr::knit('analysis/paper/paper.Rmd', tangle=TRUE)
-source('analysis/paper/paper.R')
+source('paper.R')
 
 testthat::test_file('tests/testthat/test-getRF.R')
 testthat::test_file('tests/testthat/test-getBestModel.R')
