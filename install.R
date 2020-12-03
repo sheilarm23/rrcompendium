@@ -2,6 +2,7 @@
 install.packages("raster")
 install.packages("ggplot2")
 install.packages("ggthemes")
+install.packages("mapproj")
 install.packages("here")
 install.packages("rentrez")
 install.packages("ape")
