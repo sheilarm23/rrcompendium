@@ -14,12 +14,14 @@ before_install:
   - sudo apt-get install -y libudunits2-dev
   - sudo apt-get install -y libgdal-dev libproj-dev
   - sudo apt-get install -y libgeos-dev libfontconfig1-dev
+  - sudo apt install r-cran-raster
 
 r_packages:
   - sp
   - rgdal
   - rgeos
   - sf
+  - raster
 
 script:
   - R -e "source('tests/testthat.R')"
