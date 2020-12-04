@@ -18,7 +18,7 @@ Our pre-print will be online here:
 
 > Rodriguez-Machado, S. and Rodríguez-Cabrera, T.M. (2020). *The Truth
 > is Revealed: Identity of the Fish Fry “Teti” Fishery in Eastern Cuba*.
-> Name of journal/book, Accessed 02 Dec 2020. Online at
+> Name of journal/book, Accessed 03 Dec 2020. Online at
 > [https://doi.org/{DOI-to-compendium}](https://doi.org/%7BDOI-to-compendium%7D)
 
 ### How to cite
@@ -27,7 +27,7 @@ Please cite this compendium as:
 
 > Rodriguez-Machado, S. (2020). *Compendium of R code and data for `The
 > Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern
-> Cuba`*. Accessed 02 Dec 2020. Online at
+> Cuba`*. Accessed 03 Dec 2020. Online at
 > [https://doi.org/{DOI-to-compendium}](https://doi.org/%7BDOI-to-compendium%7D)
 
 ## Contents
@@ -58,7 +58,7 @@ The simplest way to explore the text, code and data is to click on
 to open an instance of RStudio in your browser, which will have the
 compendium files ready to work with. Binder uses rocker-project.org
 Docker images to ensure a consistent and reproducible computational
-environment. This way will take a few minutes to be ready but you will
+environment. This way will take A FEW minutes to be ready but you will
 not need to install any packages on your computer.
 
 You can download the compendium as a zip from from this URL:

@@ -62,7 +62,7 @@ The simplest way to explore the text, code and data is to click on
 to open an instance of RStudio in your browser, which will have the
 compendium files ready to work with. Binder uses rocker-project.org
 Docker images to ensure a consistent and reproducible computational
-environment. This way will take a few minutes to be ready but you will not need to install any packages on your computer.
+environment. This way will take A FEW minutes to be ready but you will not need to install any packages on your computer.
 
 You can download the compendium as a zip from from this URL:
 [master.zip](https://github.com/sheilarm23/rrcompendium/archive/master.zip). After unzipping:

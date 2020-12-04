@@ -64,6 +64,7 @@ getBestModel <- function(y){
   }
   formatPhyDat <- as.phyDat(y)                #getting the class used by modelTest: phyDat or pml
   modelChoice <- modelTest(formatPhyDat, tree = NULL, model = c("JC", "K80", "HKY", "TrN", "SYM", "GTR"), multicore = TRUE, mc.cores = 4)
-  modelChoiceSorted <- modelChoice[order(modelChoice$AICc),]
+  modelChoiceSorted <- as.data.frame(modelChoice[order(modelChoice$AICc),])
   return(modelChoiceSorted)
 }
+
