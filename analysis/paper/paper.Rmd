@@ -14,10 +14,10 @@ institute:
   - UofA: Sociedad Cubana de Zoologia
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
-    pdf_document:
+    bookdown::pdf_document2:
       toc: FALSE
       fig_caption: yes
-      citation_package: biblatex
+      #citation_package: biblatex
       latex_engine: xelatex
       pandoc_args:
       - --lua-filter=../templates/scholarly-metadata.lua
@@ -26,7 +26,7 @@ output:
 bibliography: references.bib
 csl: '../templates/journal-of-archaeological-science.csl'
 abstract: |
-  The lack of diagnostic characters to distinguish among species and even genera of gobies (Gobiidae) is still a challenge for science in the 21st century. However, the use of molecular tools applied to species-level identification has brought some light into the taxonomy and systematics of these fish taxa. The fish fry fishery in Eastern Cuba known as “Teti” represents a local fishery and there is no information about the exploitation of this natural resource outside this region. Fishing “Teti” has been a common practice for several years but an exponential increase of tourism in Eastern Cuba represents an additional threat to our biodiversity. Besides, if “Teti” refers to a single species or a species complex is still a knowledge gap in Cuba. The present study aims to identify the Fish Fry "Teti" Fishery in Eastern Cuba using molecular markers. We conducted a barcoding analysis comparing Cuban samples of gobies with samples of the genera *Sicydium* and *Awaous* available in GenBank. Here, we provide evidence that Busck´s Stone-Biting Goby, *Sicydium buscki*, is a component of the fish fry “Teti” fishery in Eastern Cuba. However, whether this fishery includes a single species or more than one species will remain as a mystery until more studies are conducted. Although this study represents the first effort toward and effective management, more thorough investigations and identification of the species comprising the “Teti” fishery are needed. It is imperative to include them in local management plans and to avoid overfishing this resource.  
+  The lack of diagnostic characters to distinguish among species and even genera of gobies (Gobiidae) is still a challenge for science in the 21st century. However, the use of molecular tools applied to species-level identification has brought some light into the taxonomy and systematics of these fish taxa. The fish fry fishery in Eastern Cuba known as “Teti” represents a local fishery and there is no information about the exploitation of this natural resource outside this region. Fishing “Teti” has been a common practice for several years but an exponential increase of tourism in Eastern Cuba represents an additional threat to our biodiversity. Besides, if “Teti” refers to a single species or a species complex is still a knowledge gap in Cuba. The present study aims to identify the Fish Fry "Teti" Fishery in Eastern Cuba using molecular markers. We conducted a barcoding analysis comparing Cuban samples of gobies with samples of the genera *Sicydium* and *Awaous* available in GenBank. Here, we provide evidence that Busck´s Stone-Biting Goby, *Sicydium buscki*, is a component of the fish fry “Teti” fishery in Eastern Cuba. However, whether this fishery includes a single species or more than one species will remain as a mystery until more studies are conducted. Although this study represents the first effort toward an effective management, more thorough investigations and identification of the species comprising the “Teti” fishery are needed. It is imperative to include them in local management plans and to avoid overfishing this resource.  
 keywords: |
   amphidromy; Busck's Stone-Biting Goby; COI; DNA barcoding; Gobiidae 
    
@@ -44,6 +44,8 @@ Keywords: `r rmarkdown::metadata$keywords`
 
 ```{r setup, echo = FALSE}    
 knitr::opts_chunk$set(
+  tidy.opts=list(width.cutoff=60),
+  tidy=TRUE,
   collapse = TRUE,
   warning = FALSE,
   message = FALSE,
@@ -100,9 +102,9 @@ Gobies have been poorly studied in Cuba and available information on their ident
 
 # Methods
 
-Tetis (19–28 mm standard length) were collected 400 m from the river mouth of Río Yumurí (Figure 1), eastern Cuba, in December, 2018. Samples were collected using hand nets (1 mm mesh size) 2 m from the riverbank. Specimens were anesthetized using MS 222 (Tricaine Methanesulphonate) and immediately preserved in 80% ethanol. Voucher specimens were deposited in the collection of the Acuario Nacional de Cuba (catalog number: ANC-xxxx).
+Tetis (19–28 mm standard length) were collected 400 m from the river mouth of Río Yumurí (Figure \@ref(fig:fig1)), eastern Cuba, in December, 2018. Samples were collected using hand nets (1 mm mesh size) 2 m from the riverbank. Specimens were anesthetized using MS 222 (Tricaine Methanesulphonate) and immediately preserved in 80% ethanol. Voucher specimens were deposited in the collection of the Acuario Nacional de Cuba (catalog number: ANC-xxxx).
 
-```{r mainMap, fig.cap="Sampling site at Yumuri river mouth, Eastern Cuba", echo = TRUE}
+```{r fig1, fig.cap="Sampling site at Yumuri river mouth, Eastern Cuba", echo = TRUE}
 
 # getting the map of Cuba
 mydata <- getData("GADM", country = "cuba", level = 1)  # package raster
@@ -119,7 +121,8 @@ dots <- data.frame(
 # main map
 mainMap <-  ggplot() +
        geom_blank(data = mymap, aes(x = long, y = lat)) +
-       geom_map(data = mymap, map = mymap, aes(group = group, map_id = id), fill = "gray90", color = "black", size = 0.3) +
+       geom_map(data = mymap, map = mymap, aes(group = group, map_id = id),
+                fill = "gray90", color = "black", size = 0.3) +
        scale_x_continuous(limits = c(-74.51, -74.11), expand = c(0, 0)) +
        scale_y_continuous(limits = c(20.13, 20.42), expand = c(0, 0)) +
        geom_point(data = dots, aes(x = long, y = lat), color = "red", size = 4) +     
@@ -134,13 +137,15 @@ zoomOut <- data.frame(long = c(-74.49, -74.49, -74.09, -74.09, -74.49),
 insetMap <- ggplotGrob(
       ggplot() +
       geom_blank(data = mymap, aes(x = long, y = lat)) +
-      geom_map(data = mymap, map = mymap, aes(group = group, map_id = id), fill = "gray95", color = "black", size = 0.3) +
+      geom_map(data = mymap, map = mymap, aes(group = group, map_id = id), fill = "gray95",
+               color = "black", size = 0.3) +
       geom_path(data = zoomOut, aes(x = long, y = lat), size = 0.3) +
       scale_x_continuous(limits = c(-85.47, -73.65), expand = c(0, 0)) +
       scale_y_continuous(limits = c(19.5, 23.5), expand = c(0, 0)) +
       coord_map("polyconic") +
       theme_map() +     # package ggthemes
-      theme(panel.background = element_rect(fill = NULL)) # fill = NULL or transparent, with color=NA both the background and the frame are transparent
+# fill = NULL or transparent, with color=NA both the background and the frame are transparent
+      theme(panel.background = element_rect(fill = NULL)) 
       )
 
 mainMap +
@@ -176,14 +181,18 @@ Awaous_bananaCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_bananaCOI_sear
 
 Awaous_ocellarisCOI <- "Awaous_ocellaris[Organism] AND COI[Gene]"
 Awaous_ocellarisCOI_search <- entrez_search(db = "nuccore", term = Awaous_ocellarisCOI, retmax = 4)
-Awaous_ocellarisCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_ocellarisCOI_search$ids, rettype = "fasta")
+Awaous_ocellarisCOI_seqs <- entrez_fetch(db = "nuccore",
+                                         id = Awaous_ocellarisCOI_search$ids, rettype = "fasta")
 
 # storing ALL sequences in a single fasta file
 write(Sicydium_COI_seqs1, here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n")
 # 'append = TRUE', I can keep adding seqs
-write(Sicydium_COI_seqs2, here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)   
-write(Awaous_bananaCOI_seqs, here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)
-write(Awaous_ocellarisCOI_seqs, here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)
+write(Sicydium_COI_seqs2,
+      here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)   
+write(Awaous_bananaCOI_seqs,
+      here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)
+write(Awaous_ocellarisCOI_seqs,
+      here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)
 
 
 ```
@@ -194,20 +203,28 @@ write(Awaous_ocellarisCOI_seqs, here(file="analysis/data/raw_data/Sicydium_COI_1
 # seqinr: package for sequence manipulation 
 # reading the file and renaming the sequences
 
-Sicydium_COI_seqinrFormat <- read.fasta(here(file ="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+Sicydium_COI_seqinrFormat <- read.fasta(
+  here(file ="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"),
+  seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 
-Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name")      # editing species name
-Sicydium_COI_names <- gsub("\\..*", "", Sicydium_COI_names)        # eliminating characters after "." using gsub
-Sicydium_COI_names <- gsub("^.*\\|", "", Sicydium_COI_names)       # eliminating characters before "|" using gsub
+# editing species name
+Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name") 
+# eliminating characters after "." using gsub
+Sicydium_COI_names <- gsub("\\..*", "", Sicydium_COI_names)        
+# eliminating characters before "|" using gsub
+Sicydium_COI_names <- gsub("^.*\\|", "", Sicydium_COI_names)       
 
-# using library "ape"
-Sicydium_COI_apeFormat <- read.GenBank(Sicydium_COI_names)         # this line takes a few minutes to run
+# using library "ape" --- this line takes a few minutes to run
+Sicydium_COI_apeFormat <- read.GenBank(Sicydium_COI_names) 
 
 # creating a vector (to be added as name of the seqs) with the species, GenBank accession number, and type of gene
-Sicydium_COI_GenBank_Ids <- paste(attr(Sicydium_COI_apeFormat, "species"), names(Sicydium_COI_apeFormat), sep = "_COI_")
+Sicydium_COI_GenBank_Ids <- paste(attr(Sicydium_COI_apeFormat, "species"),
+                                  names(Sicydium_COI_apeFormat),
+                                  sep = "_COI_")
 
 # writing a new fasta file (2nd) using the vector above 
-write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_Ids, nbchar = 10,
+write.fasta(sequences = Sicydium_COI_seqinrFormat,
+            names = Sicydium_COI_GenBank_Ids, nbchar = 10,
             here(file.out = "analysis/data/raw_data/Sicydium_COI_2-seqinrFormat.fasta"))
 
 
@@ -217,8 +234,8 @@ write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_
 nameFasta <- read.fasta(here(file = "analysis/data/raw_data/Sicydium_COI_2-seqinrFormat.fasta"),
                         seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
 
-fastaNames <- strsplit(names(nameFasta), '_')                  # creating a vector splitting species names
-completeSeqs <- which(! grepl("sp.", fastaNames))              # selecting only those with specific name in them  
+fastaNames <- strsplit(names(nameFasta), '_')       # creating a vector splitting species names
+completeSeqs <- which(! grepl("sp.", fastaNames))   # selecting only those with specific name  
 
 # writing a new fasta (3rd) file with only those seqs with full scientific names
 write.fasta(sequences = nameFasta[completeSeqs], names = names(nameFasta)[completeSeqs],
@@ -228,7 +245,8 @@ write.fasta(sequences = nameFasta[completeSeqs], names = names(nameFasta)[comple
 lengthFasta <- read.fasta(here(file = "analysis/data/raw_data/Sicydium_COI_3-names.fasta"),
                           seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)     # 586 seqs
 fastaLength <- lengthFasta[which(getLength(lengthFasta) >= 600)]
-write.fasta(sequences = fastaLength, names = names(fastaLength),
+write.fasta(sequences = fastaLength,
+            names = names(fastaLength),
             here(file.out = "analysis/data/raw_data/Sicydium_COI_4-lengths.fasta"))             # 401 seqs
 
 ### Removing DUPLICATE sequences
@@ -240,12 +258,16 @@ seqnames <- names(duplicatesFasta)
 dups <- grep(TRUE,duplicated(duplicatesFasta))
 uniqueNames <- seqnames[-dups]
 uniqueSeqs <- duplicatesFasta[-dups] 
-write.fasta(sequences = uniqueSeqs, names = uniqueNames,
+
+write.fasta(sequences = uniqueSeqs,
+            names = uniqueNames,
             here(file.out = "analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"))               # 204 seqs
 
 # adding samples from Cuba (n=6)
 mySamples <- read.fasta(here("analysis/data/raw_data/Sicydium_COI_Cuba.fas"))
-write.fasta(mySamples, names(mySamples), here("analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"), open = "a")              # 210 seqs
+write.fasta(mySamples,
+            names(mySamples),
+            here("analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"), open = "a")              # 210 seqs
 
 
 ```
@@ -254,27 +276,31 @@ write.fasta(mySamples, names(mySamples), here("analysis/data/raw_data/Sicydium_C
 ```{r alignment, echo = TRUE}
 invisible({capture.output({                ### ALIGNING the sequences        # libraries "msa" and "Biostrings"
 
-alignmentFasta <- readDNAStringSet(here("analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"))
+alignmentFasta <- readDNAStringSet(here(
+  "analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"))
 set.seed(123)
 ClustalOAlignment <- msa(alignmentFasta, "ClustalOmega")
 # print(ClustalOAlignment, showConsensus=FALSE, showNames=TRUE, show="complete") 
 
 # Checking for the position of sequences that were not edited properly so they still have nucleotides different that A, G, C, T 
 nucType <- alphabetFrequency(ClustalOAlignment)
-unknownNuc <- nucType[, c(5:14)]  # this subset only contains nucleotides that are not A, G, T, C, or N or gaps
+unknownNuc <- nucType[, c(5:14)]  # only nucleotides that are not A, G, T, C, or N or gaps
 unknownPosition <- which(unknownNuc > 0, arr.ind=T)
 
 # REMOVING samples with too many GAPS at the beginning and the end of the sequences and UNKNOWN nucleotides (ex.: W, K, S) 
 colmask(ClustalOAlignment) <- IRanges(start=c(1,666),end=c(25,679))
 rowmask(ClustalOAlignment) <- IRanges(start=c(1),end=c(1))
 ClustalOAlignment2 <- as(ClustalOAlignment, "DNAStringSet")
-writeXStringSet(ClustalOAlignment2, here(file="analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"))            # 209 seqs -- 640 bp
+writeXStringSet(ClustalOAlignment2,
+                here("analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"))            # 209 seqs -- 640 bp
 
 ### Replacing gaps at the begining and end with Ns
-gapsFasta <- read.fasta(here(file = "analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"), seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE, apply.mask = FALSE)
+gapsFasta <- read.fasta(here(file = "analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"),
+                        seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE, apply.mask = FALSE)
 #getLength(gapsFasta)
 replacingGaps <- lapply(gapsFasta, function(x) gsub("-", "N", x))
-write.fasta(replacingGaps, names(replacingGaps), here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta"))
+write.fasta(replacingGaps, names(replacingGaps),
+            here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta"))
 
 })})
 
@@ -288,19 +314,25 @@ alignedFasta <- readDNAStringSet(here("analysis/data/raw_data/Sicydium_COI_7-gap
 
 getRF <- function(x){
   if (class(x)!= c("DNAStringSet")){
-    stop("This function only takes files of class 'DNAStringSet'. Use package 'Biostrings' to read the input file")
+    stop("This function only takes files of class 'DNAStringSet'.
+         Use package 'Biostrings' to read the input file")
   }
   if (any(letterFrequency(x, "-", as.prob=TRUE))>0){
-    stop("This function do not take gaps as values/strings. Go and replaced gaps with Ns (if the gaps are at the begining or end of the sequences) or choose a subset of sequences that do not contain gaps")
+    stop("This function do not take gaps as values/strings.
+         Go and replaced gaps with Ns (if the gaps are at the begining
+         or end of the sequences)
+         or choose a subset of sequences that do not contain gaps")
   }
-  orf1 <- predORF(x[1:10], n=1, type="df", mode="orf", strand="sense")   # predORF() do not read seqs with gaps
+  orf1 <- predORF(x[1:10], n=1, type="df", mode="orf", strand="sense")
+  # predORF() do not read seqs with gaps
   # predicts longest ORF for sense strand in each query sequence                                                                          
   longestSeq1 <- orf1$start[orf1$width == max(orf1$width)]
   codonPosition1 <- longestSeq1[1]/3
   codonConfirmation1 <- round(codonPosition1)                         # 640 bp
   if (codonPosition1==codonConfirmation1){
-   file.rename(here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta"), here("analysis/data/raw_data/Sicydium_COI_newRF.fasta")) 
-  print("The Reading Frame of these seqs is +1, no further action is required, go to modelTesting")
+   file.rename(here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta"),
+               here("analysis/data/raw_data/Sicydium_COI_newRF.fasta")) 
+  print("The Reading Frame of these seqs is +1, go to ModelTesting")
     } else {
     if (codonPosition1!=codonConfirmation1){
       tempLength <- length(x[[1]])
@@ -313,15 +345,19 @@ getRF <- function(x){
       codonPosition2 <- (longestSeq2[1]+2)/3
       codonConfirmation2 <- round(codonPosition2)
       if (codonPosition2==codonConfirmation2){
-        writeXStringSet(newRF2, here(file="analysis/data/raw_data/Sicydium_COI_newRF.fasta"))                    
-      print("The Reading Frame of these seqs was +2, new fasta file created, go to modelTesting")
+        writeXStringSet(newRF2, 
+                        here("analysis/data/raw_data/Sicydium_COI_newRF.fasta"))                    
+      print("The Reading Frame of these seqs was +2,
+            new fasta file created, go to modelTesting")
       } else {
       if (codonPosition2!=codonConfirmation2){
         #remove first nucleotide position
         tempLength <- length(x[[1]])
         newRF3 <- subseq(x, start = 3, end = tempLength)   # 638 bp
-        writeXStringSet(newRF3, here(file="analysis/data/raw_data/Sicydium_COI_newRF.fasta"))                                
-      print("The Reading Frame of these seqs was +3, new fasta file created, go to modelTesting")
+        writeXStringSet(newRF3, 
+                        here("analysis/data/raw_data/Sicydium_COI_newRF.fasta"))                                
+      print("The Reading Frame of these seqs was +3,
+            new fasta file created, go to modelTesting")
      }
    }  
   }
@@ -349,7 +385,8 @@ fastaRF <- read.dna(here(file="analysis/data/raw_data/Sicydium_COI_newRF.fasta")
 
 getBestModel <- function(y){
   if (class(y)!= c("DNAbin")){
-    stop("This function only takes files of class 'DNAbin'. Use package 'ape' to read the input file")
+    stop("This function only takes files of class 'DNAbin'.
+         Use package 'ape' to read the input file")
   }
   formatPhyDat <- as.phyDat(y)                #getting the class used by modelTest: phyDat or pml
   set.seed(123)
@@ -358,7 +395,7 @@ getBestModel <- function(y){
   return(modelChoiceSorted)
 }
   
-bestModel <- suppressWarnings(suppressMessages(getBestModel(y = fastaRF)))               # getting the AICc for each competing model
+bestModel <- suppressWarnings(suppressMessages(getBestModel(y = fastaRF)))
 
 # DISCLAIMER: visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
 # The alternative is to get automatically the first model that the data.frame modelTest gives and storing it as a variable. In order to get this as reproducible as possible, I chose the alternative.
@@ -366,14 +403,15 @@ bestModel <- suppressWarnings(suppressMessages(getBestModel(y = fastaRF)))      
 
 ```
 
-```{r tree, echo = FALSE, include=TRUE, results = 'hide', fig.show='hide', warning = FALSE, echo = TRUE}
+```{r tree, echo = TRUE, include=TRUE, results = 'hide', fig.show='hide', warning = FALSE}
 
                                                         # BUILINDG THE TREE
 # --- library: phangorn
 set.seed(123)
 env = attr(bestModel, "env")    # getting the AICc for each competing model sorted
 set.seed(123)
-fitStart = eval(get(bestModel$Model[which.min(bestModel$AICc)], env), env)    # initial fit for the model chosen
+# initial fit for the model chosen
+fitStart = eval(get(bestModel$Model[which.min(bestModel$AICc)], env), env)    
 
 set.seed(123)
 fit = suppressWarnings(optim.pml(fitStart, rearrangement = "stochastic", optGamma=TRUE, optInv=FALSE, model="HKY"))     # seeking a maximum likelihood solution
@@ -382,7 +420,8 @@ bs = bootstrap.pml(fit, bs=100, optNni=TRUE, multicore=TRUE, mc.cores = 4)
 
 # saving the tree in the folder 'analysis/figures/'
 set.seed(123)
-bsTree <- plotBS(midpoint(fit$tree), bs, p = 75, type="p", bs.col = "blue")     # fit$tree is where the optimal tree is stored
+# fit$tree is where the optimal tree is stored
+bsTree <- plotBS(midpoint(fit$tree), bs, p = 75, type="p", bs.col = "blue")     
 
 set.seed(123)
 optimalTree <- plotBS(bsTree, type = "p", cex = 0.2, font = 1)
@@ -401,13 +440,14 @@ loglikelihood <- round(-1*(as.numeric(fit[1])), 2)
 ```
 
 
-```{r editingTree, echo = FALSE, fig.keep='none', echo = TRUE}
+```{r editingTree, echo = FALSE, echo = TRUE}
 
 # Editing and visualizing the tree to represent --- library: ggtree
 tree <- read.tree(here(file="analysis/data/derived_data/Sicydium_ML_tree.tre"))
 
 # checking that the tree is rooted
-rootedTree <- is.rooted(tree)   # package ape. showing the tree root: geom_rootpoint(color="pink", size=5) 
+# package ape. showing the tree root: geom_rootpoint(color="pink", size=5) 
+rootedTree <- is.rooted(tree)   
 # getting the node number for each main clade. This info is important because those #s are the one needed to edit each main clade/species
 set.seed(123)
 nodeNumber <- ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue", size = 1) # looks horrible but it gives the clade number
@@ -416,10 +456,10 @@ nodeNumber <- ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue",
 
 # Results
 
-The final alignment comprised 209 sequences, each one of 639 base pairs. Figure 2 depicts the ML tree (-lnL = `r loglikelihood`) showing the relationships among all COI sequences identified as *Sicydium* spp. available in GenBank. Six clades matching known *Sicydium* species were recovered with strong support. The phylogenetic reconstruction shows that the six samples from Cuba, highlighted in green, nested within *Sicydium buscki* Evermann & Clark, 1906.
+The final alignment comprised 209 sequences, each one of 639 base pairs. Figure \@ref(fig:fig2) depicts the ML tree (-lnL = `r loglikelihood`) showing the relationships among all COI sequences identified as *Sicydium* spp. available in GenBank. Six clades matching known *Sicydium* species were recovered with strong support. The phylogenetic reconstruction shows that the six samples from Cuba, highlighted in green, nested within *Sicydium buscki* Evermann & Clark, 1906.
 
 
-```{r SicydiumTree, fig.width = 15, fig.height = 19, fig.cap=paste("ML phylogenetic tree (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus *Sicydium*. Sequences highlited in green represent samples from Cuba. Numbers on branches represent boostrap values higher than 82."), echo = TRUE}
+```{r fig2, fig.width = 15, fig.height = 19, fig.cap=paste("ML phylogenetic tree (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus *Sicydium*. Sequences highlited in green represent samples from Cuba. Numbers on branches represent boostrap values higher than 82."), echo = TRUE}
 
 ggtree(tree, size = .8) + 
   xlim(-0.02, 0.26) +
@@ -433,7 +473,6 @@ ggtree(tree, size = .8) +
   geom_cladelabel(node=371, label="Sicydium buscki", color="black", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
   geom_cladelabel(node=407, label="Sicydium crenilabrum", color="orange", hjust = -0.03, vjust = 0.1, fontsize = 6, offset = 0.004, fontface="italic") +
   geom_cladelabel(node=211, label="Awaous spp.", color="darkgreen", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") +
-  # samples Sicydium_COI_Cuba2,4,6 were nested within this clde but the distance is too short to be displayed in the tree
   geom_hilight(node=191, fill="green", alpha = 0.7, extend=.004) +
   geom_hilight(node=166, fill="green", alpha = 0.7, extend=.004) +
   geom_hilight(node=177, fill="green", alpha = 0.7, extend=.004) +
@@ -441,8 +480,6 @@ ggtree(tree, size = .8) +
   geom_hilight(node=171, fill="green", alpha = 0.7, extend=.004) +
   geom_hilight(node=172, fill="green", alpha = 0.7, extend=.004) +
   theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm")) 
-
-# suppressWarnings(suppressMessages(print(Sicydium_ML_tree)))
 
 
 ```
@@ -469,3 +506,26 @@ We thank the Habitat production team for their help during the field work. Seque
 
 \newpage
 
+# References 
+
+<!-- The following line ensures the references appear here for the MS Word or HTML output files, rather than right at the end of the document (this will not work for PDF files):  -->
+
+<div id="refs"></div>
+
+\newpage
+
+### Colophon
+
+This report was generated on `r Sys.time()` using the following computational environment and dependencies: 
+
+```{r colophon, cache = FALSE}
+# which R packages and versions?
+if ("devtools" %in% installed.packages()) devtools::session_info()
+```
+
+The current Git commit details are:
+
+```{r}
+# what commit is this file at? 
+if ("git2r" %in% installed.packages() & git2r::in_repository(path = ".")) git2r::repository(here::here())  
+```
