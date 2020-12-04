@@ -6,12 +6,7 @@ r:
   - release
   - devel
   - bioc-devel
-r_packages:
-  - sp
-  - rgdal
-  - rgeos
-apt_packages:
-  - libxml2-dev
 install: skip
 script:
   - R -e "source('tests/testthat.R')"
+
