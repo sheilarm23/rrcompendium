@@ -14,9 +14,11 @@ institute:
   - UofA: Sociedad Cubana de Zoologia
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
-    bookdown::word_document2:
+    pdf_document:
+      toc: FALSE
       fig_caption: yes
-      reference_docx: '../templates/template.docx'
+      citation_package: biblatex
+      latex_engine: xelatex
       pandoc_args:
       - --lua-filter=../templates/scholarly-metadata.lua
       - --lua-filter=../templates/author-info-blocks.lua
@@ -51,12 +53,11 @@ knitr::opts_chunk$set(
   dpi = 300
 )
 
-#knitr::opts_knit$set(root.dir = '/rrcompendium/')
 
 ```
 
 
-```{r}
+```{r, echo = TRUE}
 
 # INSTALLING PACKAGES AND LIBRARIES - if needed
 packages = c("BiocManager", "raster", "ggplot2", "ggthemes", "mapproj", "here",  
@@ -99,9 +100,9 @@ Gobies have been poorly studied in Cuba and available information on their ident
 
 # Methods
 
-Tetis (19–28 mm standard length) were collected 400 m from the river mouth of Río Yumurí (Figure \@ref(fig:mainMap)), eastern Cuba, in December, 2018. Samples were collected using hand nets (1 mm mesh size) 2 m from the riverbank. Specimens were anesthetized using MS 222 (Tricaine Methanesulphonate) and immediately preserved in 80% ethanol. Voucher specimens were deposited in the collection of the Acuario Nacional de Cuba (catalog number: ANC-xxxx).
+Tetis (19–28 mm standard length) were collected 400 m from the river mouth of Río Yumurí (Figure 1), eastern Cuba, in December, 2018. Samples were collected using hand nets (1 mm mesh size) 2 m from the riverbank. Specimens were anesthetized using MS 222 (Tricaine Methanesulphonate) and immediately preserved in 80% ethanol. Voucher specimens were deposited in the collection of the Acuario Nacional de Cuba (catalog number: ANC-xxxx).
 
-```{r mainMap, fig.cap="Sampling site at Yumuri river mouth, Eastern Cuba"}
+```{r mainMap, fig.cap="Sampling site at Yumuri river mouth, Eastern Cuba", echo = TRUE}
 
 # getting the map of Cuba
 mydata <- getData("GADM", country = "cuba", level = 1)  # package raster
@@ -153,7 +154,7 @@ Total DNA was extracted from caudal peduncle muscle tissues using the DNAeasy ti
 
 PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affymetrix Inc./ USB, Cleveland, OH, USA), and then sequenced on an ABI 3100 automated sequencer (Applied Biosystems). Raw sequence files were edited and aligned with the software Geneious v.9.1 [@kearse2012geneious], and submitted to GenBank database (accession numbers #####). We used sequences of the genus *Sicydium* as reference for recovering the taxonomic identity of the "Tetis". Sequences of *Awaous banana* and *A. ocellaris* were used as outgroup. All non-Cuban sequences were recovered from GenBank using the R package *rentrez* [@winter2017rentrez]. Duplicated sequences and sequences with missing data were excluded. Sequences were edited using the R packages *seqinr* [@charif2007seqinr], *ape* [@paradis2015package], and *Biostrings* [@pages2013package]. Final alignment was obtained with the algorithm ClustalOmega [@sievers2011fast] using the R package *msa* [@bodenhofer2015msa].
 
-```{r gettingAPI}
+```{r gettingAPI, echo = TRUE}
 
                                                             # DOWNLOADING SEQS FROM GENBANK
 # rentrez: this package provides an R interface NCBI API and allows to search databases like GenBank (http://www.ncbi.nih.gov/genbank/) 
@@ -188,7 +189,7 @@ write(Awaous_ocellarisCOI_seqs, here(file="analysis/data/raw_data/Sicydium_COI_1
 ```
 
 
-```{r editingAPI}
+```{r editingAPI, echo = TRUE}
 
 # seqinr: package for sequence manipulation 
 # reading the file and renaming the sequences
@@ -250,7 +251,7 @@ write.fasta(mySamples, names(mySamples), here("analysis/data/raw_data/Sicydium_C
 ```
 
 
-```{r alignment}
+```{r alignment, echo = TRUE}
 invisible({capture.output({                ### ALIGNING the sequences        # libraries "msa" and "Biostrings"
 
 alignmentFasta <- readDNAStringSet(here("analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"))
@@ -280,7 +281,7 @@ write.fasta(replacingGaps, names(replacingGaps), here("analysis/data/raw_data/Si
 ```
 
 
-```{r, getRF, warning = FALSE}
+```{r, getRF, warning = FALSE, echo = TRUE}
 invisible({capture.output({               ### GETTING the READING FRAME     --- library "systemPipeR"
                                           
 alignedFasta <- readDNAStringSet(here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")) 
@@ -339,7 +340,7 @@ The nucleotide substitution model that best explained our data was estimated usi
 
 This paper was completely developed in RStudio, PBC (“RStudio”) [@rstudio2020]. R code and data are available as a research compendium for generating this paper in the following link: https://github.com/sheilarm23/rrcompendium.git.    
 
-```{r getBestModel, warning = FALSE}
+```{r getBestModel, warning = FALSE, echo = TRUE}
                                       # FINDING THE BEST NUCLEOTIDE SUSBSTITUTION MODEL
 
 # libraries ape and phangorn (modelTest is a function of the package phangorn)
@@ -365,7 +366,7 @@ bestModel <- suppressWarnings(suppressMessages(getBestModel(y = fastaRF)))      
 
 ```
 
-```{r tree, echo = FALSE, include=TRUE, results = 'hide', fig.show='hide', warning = FALSE}
+```{r tree, echo = FALSE, include=TRUE, results = 'hide', fig.show='hide', warning = FALSE, echo = TRUE}
 
                                                         # BUILINDG THE TREE
 # --- library: phangorn
@@ -393,14 +394,14 @@ write.tree(optimalTree, here(file="analysis/data/derived_data/Sicydium_ML_tree.t
 ```
 
 
-```{r loglikelihood, include = TRUE, results='hide'}
+```{r loglikelihood, include = TRUE, results='hide', echo = TRUE}
 # this result wont be displayed in the final document
 loglikelihood <- round(-1*(as.numeric(fit[1])), 2)
 
 ```
 
 
-```{r editingTree, echo = FALSE}
+```{r editingTree, echo = FALSE, fig.keep='none', echo = TRUE}
 
 # Editing and visualizing the tree to represent --- library: ggtree
 tree <- read.tree(here(file="analysis/data/derived_data/Sicydium_ML_tree.tre"))
@@ -415,10 +416,10 @@ nodeNumber <- ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue",
 
 # Results
 
-The final alignment comprised 209 sequences, each one of 639 base pairs. Figure \@ref(fig:SicydiumTree) depicts the ML tree (-lnL = `r loglikelihood`) showing the relationships among all COI sequences identified as *Sicydium* spp. available in GenBank. Six clades matching known *Sicydium* species were recovered with strong support. The phylogenetic reconstruction shows that the six samples from Cuba, highlighted in green, nested within *Sicydium buscki* Evermann & Clark, 1906.
+The final alignment comprised 209 sequences, each one of 639 base pairs. Figure 2 depicts the ML tree (-lnL = `r loglikelihood`) showing the relationships among all COI sequences identified as *Sicydium* spp. available in GenBank. Six clades matching known *Sicydium* species were recovered with strong support. The phylogenetic reconstruction shows that the six samples from Cuba, highlighted in green, nested within *Sicydium buscki* Evermann & Clark, 1906.
 
 
-```{r SicydiumTree, fig.width = 15, fig.height = 19, fig.cap=paste("ML phylogenetic tree (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus *Sicydium*. Sequences highlited in green represent samples from Cuba. Numbers on branches represent boostrap values higher than 82.")}
+```{r SicydiumTree, fig.width = 15, fig.height = 19, fig.cap=paste("ML phylogenetic tree (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus *Sicydium*. Sequences highlited in green represent samples from Cuba. Numbers on branches represent boostrap values higher than 82."), echo = TRUE}
 
 ggtree(tree, size = .8) + 
   xlim(-0.02, 0.26) +
@@ -468,26 +469,3 @@ We thank the Habitat production team for their help during the field work. Seque
 
 \newpage
 
-# References 
-
-<!-- The following line ensures the references appear here for the MS Word or HTML output files, rather than right at the end of the document (this will not work for PDF files):  -->
-
-<div id="refs"></div>
-
-\newpage
-
-### Colophon
-
-This report was generated on `r Sys.time()` using the following computational environment and dependencies: 
-
-```{r colophon, cache = FALSE}
-# which R packages and versions?
-if ("devtools" %in% installed.packages()) devtools::session_info()
-```
-
-The current Git commit details are:
-
-```{r}
-# what commit is this file at? 
-if ("git2r" %in% installed.packages() & git2r::in_repository(path = ".")) git2r::repository(here::here())  
-```
