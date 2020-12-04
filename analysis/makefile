@@ -17,9 +17,8 @@ paper/paper.docx: paper/paper.Rmd
 .PHONY: clean
 
 clean:
-	cd paper; rm *.pdf *.rds
 	cd figures; rm -f *.pdf
 	cd data/raw_data; rm -f *.fasta
 	cd data/derived_data; rm *.tre
-	cd paper; rm *.log *.tex
+	cd paper; rm *.pdf *.rds
 
