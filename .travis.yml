@@ -27,7 +27,10 @@ r_packages:
   - BiocManager
   - mapproj
   - here  
-           #  "rentrez", "ape", "seqinr", "phangorn
+  - rentrez
+  - ape
+  - seqinr
+  - phangorn
 
 script:
   - R -e "source('tests/testthat.R')"
