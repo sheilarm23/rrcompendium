@@ -23,6 +23,11 @@ r_packages:
   - sf
   - raster
   - ggplot2
+  - ggthemes
+  - BiocManager
+  - mapproj
+  - here  
+           #  "rentrez", "ape", "seqinr", "phangorn
 
 script:
   - R -e "source('tests/testthat.R')"
