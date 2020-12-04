@@ -7,6 +7,15 @@ r:
   - devel
   - bioc-devel
 
+# this worked perfectly only for functions. 
+# install: skip
+# script:
+#  - R -e "source('tests/testthat.R')"
+# the above code goes with this in testthat.R
+# knitr::knit('R/myFunctions.R', tangle=TRUE)
+  # source('R/myFunctions.R'). WITHOUT removing R/myFunctions.R at the end of the file
+
+# what is below is for testing the entire .Rmd but exceeds travis time...
 sudo: required
 
 before_install:
