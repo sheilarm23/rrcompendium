@@ -292,7 +292,7 @@ colmask(ClustalOAlignment) <- IRanges(start=c(1,666),end=c(25,679))
 rowmask(ClustalOAlignment) <- IRanges(start=c(1),end=c(1))
 ClustalOAlignment2 <- as(ClustalOAlignment, "DNAStringSet")
 writeXStringSet(ClustalOAlignment2,
-                here("analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"))            # 209 seqs -- 640 bp
+                here("analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"))          # 209 seqs -- 640 bp
 
 ### Replacing gaps at the begining and end with Ns
 gapsFasta <- read.fasta(here(file = "analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"),
