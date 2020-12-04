@@ -2,7 +2,11 @@
 context("test-getBestModel")
 
 SeqA <- c("ANTCATTTGA")
-SeqB <- as.DNAbin(c("TAGTAGGTACTGCCC", "TAGTAGGTACTGCCC", "TAGTAGGTACTGCCC", "TAGTAGGTACTGCCC"))
+
+SeqB1 <- structure(c("123", "456", "789", "101", "AATTCAATGCTCGGGAAGCAAGGAAAGCTA", "AATTCCTAAAACACCAATCAAGTTGGTGTT", "AATTCACCACCACCACTAGCATACCATCCA", "AATTCTATTGGTCATCACAATGGTGGTCCG"), .Dim = c(4L, 2L))
+SeqB2 <- t(sapply(strsplit(SeqB1[,2],""), tolower))
+rownames(SeqB2) <- SeqB1[,1]
+SeqB3 <- as.DNAbin(SeqB2)
 
 test1 <- test_that("getBestModel", {
   expect_is(getBestModel, "function")
@@ -12,7 +16,7 @@ test2 <- test_that("getBestModel", {
   expect_error(getBestModel(SeqA)) # errors out when a file of class other than -DNAStringSet- is taken
 })
 
-bestModel <- getBestModel(SeqB)
+bestModel <- getBestModel(SeqB3)
 
 test3 <- test_that("getBestModel", {
   expect_true(class(bestModel) == "data.frame")  # outputs an object of class data.frame
