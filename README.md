@@ -3,14 +3,10 @@
 
 # rrcompendium
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sheilarm23/rrcompendium/master?urlpath=rstudio)
-
 This repository contains the data and code for our future paper:
 
 > Rodriguez-Machado, S. and Rodríguez-Cabrera, T.M. (2020). *The Truth
 > is Revealed: Identity of the Fish Fry “Teti” Fishery in Eastern Cuba*.
-> Name of journal/book
-> [https://doi.org/{DOI-to-paper}](https://doi.org/%7BDOI-to-paper%7D)
 
 which is still a work in progress…
 
@@ -18,8 +14,7 @@ Our pre-print will be online here:
 
 > Rodriguez-Machado, S. and Rodríguez-Cabrera, T.M. (2020). *The Truth
 > is Revealed: Identity of the Fish Fry “Teti” Fishery in Eastern Cuba*.
-> Name of journal/book, Accessed 03 Dec 2020. Online at
-> [https://doi.org/{DOI-to-compendium}](https://doi.org/%7BDOI-to-compendium%7D)
+> Name of journal/book, Accessed 04 Dec 2020.
 
 ### How to cite
 
@@ -27,8 +22,7 @@ Please cite this compendium as:
 
 > Rodriguez-Machado, S. (2020). *Compendium of R code and data for `The
 > Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern
-> Cuba`*. Accessed 03 Dec 2020. Online at
-> [https://doi.org/{DOI-to-compendium}](https://doi.org/%7BDOI-to-compendium%7D)
+> Cuba`*. Accessed 04 Dec 2020.
 
 ## Contents
 
@@ -45,7 +39,7 @@ The **analysis** directory contains:
   - [:file\_folder: templates](/analysis/templates): Style of citations
     and reference list
 
-## How to run in your broswer or download and run locally
+## How to download and run locally
 
 This research compendium has been developed using the statistical
 programming language R. To work with the compendium, you will need
@@ -53,27 +47,19 @@ installed on your computer the [R
 software](https://cloud.r-project.org/) itself and optionally [RStudio
 Desktop](https://rstudio.com/products/rstudio/download/).
 
-The simplest way to explore the text, code and data is to click on
-[binder](https://mybinder.org/v2/gh/sheilarm23/rrcompendium/master?urlpath=rstudio)
-to open an instance of RStudio in your browser, which will have the
-compendium files ready to work with. Binder uses rocker-project.org
-Docker images to ensure a consistent and reproducible computational
-environment. This way will take A FEW minutes to be ready but you will
-not need to install any packages on your computer.
-
 You can download the compendium as a zip from from this URL:
 [master.zip](https://github.com/sheilarm23/rrcompendium/archive/master.zip).
 After unzipping: - open the `.Rproj` file in RStudio - run
 `devtools::install()` to ensure you have the packages this analysis
 depends on (also listed in the [DESCRIPTION](/DESCRIPTION) file). -
 finally, open `analysis/paper/paper.Rmd` and knit to produce the
-`paper.docx`, or run `rmarkdown::render("analysis/paper/paper.Rmd")` in
+`paper.pdf`, or run `rmarkdown::render("analysis/paper/paper.Rmd")` in
 the R console
 
-Makefile: Whatever the option you choose to explore this compendium, you
-can also use the makefile (`/analysis/makefile`) in the terminal (`make
-all`) to compile the .docx document and then, you can use `make clean`
-to remove all files generated during the process.
+MAKEFILE: Whatever option you choose to explore, and run, this
+compendium, you can also use the makefile (`/analysis/makefile`) in the
+terminal (`make all`) to compile the .docx document and then, you can
+use `make clean` to remove all files generated during the process.
 
 ### Licenses
 
