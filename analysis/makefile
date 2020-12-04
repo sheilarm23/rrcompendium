@@ -8,7 +8,8 @@
 
 .PHONY: all
 
-all: paper/paper.docx
+all:
+	make paper/paper.docx
 
 paper/paper.docx: paper/paper.Rmd
 	Rscript -e "rmarkdown::render('paper/paper.Rmd')"
@@ -16,8 +17,9 @@ paper/paper.docx: paper/paper.Rmd
 .PHONY: clean
 
 clean:
-	cd paper; rm *.docx *.rds
-	cd figures; rm -f *.png
+	cd paper; rm *.pdf *.rds
+	cd figures; rm -f *.pdf
 	cd data/raw_data; rm -f *.fasta
 	cd data/derived_data; rm *.tre
+	cd paper; rm *.log *.tex
 
