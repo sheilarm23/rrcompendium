@@ -9,7 +9,7 @@
 .PHONY: all
 
 all:
-	make paper/paper.docx
+	make paper/paper.docx  # this actually compiles the pdf, do not change.
 
 paper/paper.docx: paper/paper.Rmd
 	Rscript -e "rmarkdown::render('paper/paper.Rmd')"
