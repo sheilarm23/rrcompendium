@@ -1,5 +1,5 @@
 ---
-title: 'The Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern Cuba'
+title: 'Identity of fish fry from the “Tetí” fishery in Eastern Cuba'
 author:
   - Sheila Rodriguez-Machado:
       email: srodr62@lsu.edu
@@ -9,24 +9,26 @@ author:
       email: tomasmichelrodriguez@gmail.com
       institute: [UofA]
       correspondence: false
+  - Prosanta Chakrabarty:
+      email: prosanta@lsu.edu
+      institute: [UofO]
+      correspondence: true
 institute:
   - UofO: Museum of Natural Sciences, Louisiana State University
   - UofA: Sociedad Cubana de Zoologia
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
-    bookdown::pdf_document2:
-      toc: FALSE
+    bookdown::word_document2:
       fig_caption: yes
-      #citation_package: biblatex
-      latex_engine: xelatex
+      reference_docx: '../templates/template.docx'
       pandoc_args:
       - --lua-filter=../templates/scholarly-metadata.lua
       - --lua-filter=../templates/author-info-blocks.lua
       - --lua-filter=../templates/pagebreak.lua
 bibliography: references.bib
-csl: '../templates/journal-of-archaeological-science.csl'
+csl: '../templates/cell-structure-and-function.csl'
 abstract: |
-  The lack of diagnostic characters to distinguish among species and even genera of gobies (Gobiidae) is still a challenge for science in the 21st century. However, the use of molecular tools applied to species-level identification has brought some light into the taxonomy and systematics of these fish taxa. The fish fry fishery in Eastern Cuba known as “Teti” represents a local fishery and there is no information about the exploitation of this natural resource outside this region. Fishing “Teti” has been a common practice for several years but an exponential increase of tourism in Eastern Cuba represents an additional threat to our biodiversity. Besides, if “Teti” refers to a single species or a species complex is still a knowledge gap in Cuba. The present study aims to identify the Fish Fry "Teti" Fishery in Eastern Cuba using molecular markers. We conducted a barcoding analysis comparing Cuban samples of gobies with samples of the genera *Sicydium* and *Awaous* available in GenBank. Here, we provide evidence that Busck´s Stone-Biting Goby, *Sicydium buscki*, is a component of the fish fry “Teti” fishery in Eastern Cuba. However, whether this fishery includes a single species or more than one species will remain as a mystery until more studies are conducted. Although this study represents the first effort toward an effective management, more thorough investigations and identification of the species comprising the “Teti” fishery are needed. It is imperative to include them in local management plans and to avoid overfishing this resource.  
+  Fisheries of juvenile and larval fishes (i.e., fish-fry fisheries) often exploit the migratory behavior of diadromous species on their return to rivers. Although these fisheries are common worldwide, fish-fry fisheries are subject to insufficient management and the identity of the target species is frequently unknown. The artisanal fish-fry fishery in Cuba is known as “Tetí”, and is restricted to the eastern region of the country. Fishing “Tetí” has been practiced for hundreds of years, but an increase in tourism has elevated demand in recent years and may pose a threat to the conservation of this natural resource. It remains unclear if “Tetí” refers to one or multiple species. The present study aims to identify the fish fry that make up the “Tetí” fishery in Eastern Cuba with genetic data. We first used a standard nucleotide BLAST to identify the sequences. Then, we recovered the phylogenetic position of these samples based on a maximum likelihood phylogenetic analysis that also used available sequences from GenBank. Here, we provide evidence that Busck´s Stone-Biting Goby, Sicydium buscki, is a component of the “Tetí” fishery in Cuba. However, whether this fishery includes one or more species remains a mystery until additional samples can be analyzed. However, with this species identification the first efforts towards effective management can be taken to manage this fishery. Collecting additional scientific and fishing data from the “Tetí” fishery and including them in local management plans will be an important strategy for avoiding overfishing this resource.  
 keywords: |
   amphidromy; Busck's Stone-Biting Goby; COI; DNA barcoding; Gobiidae 
    
@@ -44,8 +46,6 @@ Keywords: `r rmarkdown::metadata$keywords`
 
 ```{r setup, echo = FALSE}    
 knitr::opts_chunk$set(
-  tidy.opts=list(width.cutoff=60),
-  tidy=TRUE,
   collapse = TRUE,
   warning = FALSE,
   message = FALSE,
@@ -54,17 +54,15 @@ knitr::opts_chunk$set(
   fig.path = "../figures/",
   dpi = 300
 )
-
-
+#knitr::opts_knit$set(root.dir = '/rrcompendium/')
 ```
 
 
-```{r, echo = TRUE}
-
+```{r}
 # INSTALLING PACKAGES AND LIBRARIES - if needed
 packages = c("BiocManager", "raster", "ggplot2", "ggthemes", "mapproj", "here",  
-             "rentrez", "ape", "seqinr", "phangorn")
-
+             "rentrez", "ape", "seqinr", "phangorn",
+             "adegenet", "pegas")
 package.check <- lapply(packages, FUN = function(x) {
     if (!require(x, character.only = TRUE)) {
       install.packages(x, dependencies = TRUE)
@@ -72,8 +70,6 @@ package.check <- lapply(packages, FUN = function(x) {
     }
   }
 )
-
-
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
   
@@ -87,29 +83,34 @@ package.Bioconductor <- lapply(packagesBioconductor, FUN = function(y) {
   }
 )
 
-
 ```
 
 <!-- The actual document text starts here: -->
 
 # Introduction
 
-The family Gobiidae includes almost 2,000 species of marine, freshwater, and brackish fishes worldwide [@eschmeyer2020catalog]. This group is mostly represented by small-sized and bottom-dweller fishes found in tropical and subtropical waters. Such a small size along with cryptic body colors and the lack of diagnostic characters to distinguish among species and even genera is still a challenge for science in the 21st century. Only in the last ten years, more than a hundred gobiid species were described [@eschmeyer2020catalog]. However, the use of molecular tools applied to species-level identification has brought some light into the taxonomy and systematics of these fish taxa [@thacker2011phylogeny; @victor2014three; @keith2017schismatogobius]. 
+The family Gobiidae includes almost 2,000 species of marine, freshwater, and brackish water fishes worldwide [@eschmeyer2020catalog]. This group is mostly represented by small and bottom-dwelling fishes found in tropical and subtropical waters. Their small size along with cryptic body colors and the paucity of clear diagnostic characters to distinguish among taxa is a substantial challenge. However, the use of molecular tools applied to species-level identification has shed light on the taxonomy of these fishes [@keith2011phylogeny; @thacker2011phylogeny; @victor2014three; @kuang2018phylogenomic] and in the last ten years, more than one hundred gobiid species have been described [@eschmeyer2020catalog].
 
-Although most species in the family Gobiidae inhabit marine ecosystems, most species inhabiting freshwater or estuarine ecosystems display an amphidromous lifecycle [@myers1949usage; @bell1999overview]. This means that adults spawn in freshwater and when the eggs hatch, they are taken downstream by river flow into the ocean. Then, after spending from a few weeks to a few months (depending on the species), postlarvae return to rivers. This moment of postlarval returning is particularly fascinating because million of them gather at the river mouth as they start going upstream. This migratory behavior, particularly, when the postlarvae are going back to rivers, supports an artisanal fishery around the world [@bell1999overview; @mcdowall2007amphidromy]. Known as goby-fry fisheries, this is a common practice in several countries in the Indo-Pacific [@asis2013first], the Pacific [@castellanos2011goby], and the Caribbean [@neal2009factors]. The problem with it is that during the last years insufficient management of these fisheries has led to a considerable reduction in catches [@bell1999overview]. In addition, information on the identity of the species comprising these goby-fry fisheries in many places is still incomplete [@castellanos2011goby; @asis2013first]. 
+Although most gobies inhabit marine ecosystems, some species inhabiting freshwater or estuarine ecosystems display an amphidromous lifecycle [@myers1949usage; @bell1999overview]: meaning that adults spawn in freshwater and the post-hatch larvae are carried downstream by rivers into the ocean. After spending weeks to months (depending on the species) in these marine habitats, postlarval stage individuals return to rivers. This period of postlarval return is particularly fascinating because million of them gather at the river mouth before starting their journey upstream. This migratory behavior supports artisanal fisheries worldwide [@bell1999overview; @mcdowall2007amphidromy]. Goby-fry fisheries are common practice in several countries in the Indo-Pacific [@asis2013first], the Pacific [@castellanos2011goby], and the Caribbean (@erdman1961notes; @kwaketal2016). One problem with this style of fishery is that insufficient management has led to a considerable reduction in catch [@bell1999overview]. In addition, information on the identity of the species comprising these goby-fry fisheries is still incomplete in many places [@castellanos2011goby; @asis2013first].
 
-Gobies have been poorly studied in Cuba and available information on their identification and distribution is not conclusive [@lara2010dna]. The fish fry fishery in Eastern Cuba known as “Teti” represents a local fishery and there is no information about the exploitation of this natural resource outside this region. Base on other reports in the Caribbean region [@neal2009factors], some authors claimed that the gobies *Sicydium plumieri* and *Sicydium punctatum* comprise the “Teti” fisheries in Cuba, but there is no solid evidence on that yet. Fishing “teti” has been a common practice for several years but an exponential increase of tourism in Eastern Cuba, due to recent economic policy changes, represents an additional threat to our biodiversity. Besides, if “teti” refers to a single species or a species complex is still a knowledge gap in Cuba. The present study aims to identify the Fish Fry "Teti" Fishery in Eastern Cuba using molecular markers.
+Gobies have been poorly studied in Cuba and available information on their identification and distribution is not conclusive [@lara2010dna]. The fish-fry “Tetí” fishery in Eastern Cuba represents a local artisanal fishery and there is no scientific information about the exploitation of this natural resource outside of the region. Based on other reports from the Caribbean (*e.g.*, @watson2000), some authors have claimed that the gobies *Sicydium plumieri* and *Sicydium punctatum* make up the “Tetí” fishery in Cuba, but evidence for those identications are lacking. “Tetí” has been historically exploited as the main ingredient of “traditional and exotic” dishes [@pichardoytapia1862; A. Hartman, pers. comm., August 01, 2011). However, recent changes to Cuban economic policies have promoted considerable growth in tourism [@rutty2019tourism], leading to increased fisheries pressure. Annual data series show increases in the number of visitors and infrastructure development in Baracoa [@baracoaStats2015; @baracoaStats2019], where this fishery takes place. Such actions along with the lack of fishing statistics might represent a threat to the conservation of these fish. This study aims to identify fish-fry species involved in the “Tetí” fishery in Eastern Cuba using molecular data.
 
 # Methods
 
-Tetis (19–28 mm standard length) were collected 400 m from the river mouth of Río Yumurí (Figure \@ref(fig:fig1)), eastern Cuba, in December, 2018. Samples were collected using hand nets (1 mm mesh size) 2 m from the riverbank. Specimens were anesthetized using MS 222 (Tricaine Methanesulphonate) and immediately preserved in 80% ethanol. Voucher specimens were deposited in the collection of the Acuario Nacional de Cuba (catalog number: ANC-xxxx).
+Nine “Tetís” (19–28 mm standard length) (Figure \@ref(fig:tetiPhoto)) were collected 400 m from the river mouth of the Río Yumurí (Figure \@ref(fig:mainMap)), eastern Cuba, in December 2018. Specimens were collected using hand nets (1 mm mesh size) 2 m from the riverbank, anesthetized using MS 222 (Tricaine methanesulphonate), and immediately preserved in 80% ethanol. Voucher specimens were deposited in the collection of the Acuario Nacional de Cuba (catalog number: ANC-12.2.454).
 
-```{r fig1, fig.cap="Sampling site at Yumuri river mouth, Eastern Cuba", echo = TRUE}
+
+```{r tetiPhoto, fig.cap="Lateral view of goby fry “Tetí” captured in Río Yumurí, Cuba. Photo by Tomás M. Rodríguez-Cabrera."}
+
+```
+
+
+
+```{r mainMap, fig.cap="Map of Cuba indicating where the fish-fry “Tetí” fishery has been reported. The outer circle represents the sampling locality of this study."}
 
 # getting the map of Cuba
 mydata <- getData("GADM", country = "cuba", level = 1)  # package raster
 mymap <- fortify(mydata)                                # package ggplot2
-
 # sampling site
 dots <- data.frame(
   long = c(-74.293460),
@@ -121,218 +122,155 @@ dots <- data.frame(
 # main map
 mainMap <-  ggplot() +
        geom_blank(data = mymap, aes(x = long, y = lat)) +
-       geom_map(data = mymap, map = mymap, aes(group = group, map_id = id),
-                fill = "gray90", color = "black", size = 0.3) +
+       geom_map(data = mymap, map = mymap, aes(group = group, map_id = id), fill = "gray90", color = "black", size = 0.3) +
        scale_x_continuous(limits = c(-74.51, -74.11), expand = c(0, 0)) +
        scale_y_continuous(limits = c(20.13, 20.42), expand = c(0, 0)) +
        geom_point(data = dots, aes(x = long, y = lat), color = "red", size = 4) +     
        coord_equal() +
        theme_bw()
-
 # small square framing the zomm area
 zoomOut <- data.frame(long = c(-74.49, -74.49, -74.09, -74.09, -74.49),
                    lat = c(20.13, 20.40, 20.40, 20.13, 20.13))
-
 # inset map
 insetMap <- ggplotGrob(
       ggplot() +
       geom_blank(data = mymap, aes(x = long, y = lat)) +
-      geom_map(data = mymap, map = mymap, aes(group = group, map_id = id), fill = "gray95",
-               color = "black", size = 0.3) +
+      geom_map(data = mymap, map = mymap, aes(group = group, map_id = id), fill = "gray95", color = "black", size = 0.3) +
       geom_path(data = zoomOut, aes(x = long, y = lat), size = 0.3) +
       scale_x_continuous(limits = c(-85.47, -73.65), expand = c(0, 0)) +
       scale_y_continuous(limits = c(19.5, 23.5), expand = c(0, 0)) +
       coord_map("polyconic") +
       theme_map() +     # package ggthemes
-# fill = NULL or transparent, with color=NA both the background and the frame are transparent
-      theme(panel.background = element_rect(fill = NULL)) 
+      theme(panel.background = element_rect(fill = NULL)) # fill = NULL or transparent, with color=NA both the background and the frame are transparent
       )
-
 mainMap +
       annotation_custom(grob = insetMap, xmin = -74.12, xmax = -74.37,
                         ymin = 20.31, ymax = 20.42)
 
-
 ```
 
-Total DNA was extracted from caudal peduncle muscle tissues using the DNAeasy tissue kit (QIAGEN). Partial sequences of the mitochondrial gene cytochrome oxidase I (COI) were amplified through the polymerase chain reaction in 20 μL of reaction volume (one unit of GoTaq DNA polymerase-Promega, 0.2 nM of each primer, 0.2 μM dNTPs, and 1.5 mM MgCl2) [@lara2010dna]. We used the primers COIf (5´-AAYCAYAAAGAYGGYACCCT-3´) and COIr (3´-CCTCNGGRTGNCCRAAGAAYCA-5´) [@palumbi1991simple].  
+Total DNA was extracted from caudal peduncle muscle tissues using the DNeasy tissue kit (QIAGEN). Partial sequences of the mitochondrial gene cytochrome oxidase I (COI) were amplified through the polymerase chain reaction in 20 μL of reaction volume (one unit of GoTaq DNA polymerase-Promega, 0.2 nM of each primer, 0.2 μM dNTPs, and 1.5 mM MgCl2) [@lara2010dna]. We used the primers COIf (5´-AAYCAYAAAGAYGGYACCCT-3´) and COIr (3´-CCTCNGGRTGNCCRAAGAAYCA-5´) [@palumbi1991simple].
 
-PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affymetrix Inc./ USB, Cleveland, OH, USA), and then sequenced on an ABI 3100 automated sequencer (Applied Biosystems). Raw sequence files were edited and aligned with the software Geneious v.9.1 [@kearse2012geneious], and submitted to GenBank database (accession numbers #####). We used sequences of the genus *Sicydium* as reference for recovering the taxonomic identity of the "Tetis". Sequences of *Awaous banana* and *A. ocellaris* were used as outgroup. All non-Cuban sequences were recovered from GenBank using the R package *rentrez* [@winter2017rentrez]. Duplicated sequences and sequences with missing data were excluded. Sequences were edited using the R packages *seqinr* [@charif2007seqinr], *ape* [@paradis2015package], and *Biostrings* [@pages2013package]. Final alignment was obtained with the algorithm ClustalOmega [@sievers2011fast] using the R package *msa* [@bodenhofer2015msa].
+PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affymetrix Inc./ USB, Cleveland, OH, USA), and then sequenced on an ABI 3100 automated sequencer (Applied Biosystems). Raw sequence files were edited and aligned with the software Geneious v.9.1 [@kearse2012geneious] and submitted to GenBank (accession numbers: MZ848370– MZ848378). We used a standard nucleotide BLAST (BLASTN 2.11.0; @zhangetal2000), optimized for highly similar sequences (MegaBLAST; @morgulis2008database) (Query IDs: 1237–1245), and recovered the identity of the Cuban sequences with 99–100% identity.
 
-```{r gettingAPI, echo = TRUE}
+We also aimed to recover the phylogenetic position of the fish-fry samples. For this analysis, all non-Cuban sequences were retrieved from GenBank using the R package *rentrez* [@winter2017rentrez] (Appendix 1). Duplicated sequences and sequences with missing data were excluded. The dataset was edited and aligned using the R packages *seqinr* [@charif2007seqinr], *ape* [@paradis2015package], and *Biostrings* [@pages2013package]. The final alignment was obtained with the algorithm ClustalOmega [@sievers2011fast] using the R package *msa* [@bodenhofer2015msa].
 
+
+```{r gettingAPI}
                                                             # DOWNLOADING SEQS FROM GENBANK
 # rentrez: this package provides an R interface NCBI API and allows to search databases like GenBank (http://www.ncbi.nih.gov/genbank/) 
-
 Sicydium_COI <- "Sicydium[Organism] AND COI[Gene]"
-
 # I set retmax=580 because after running this by default, I got a message with the number of hits (580 in this case)
 Sicydium_COI_search <- entrez_search(db = "nuccore", term = Sicydium_COI, retmax = 580)
-
 # given that the search is too big for the system, it needs to be split into two smaller ones
 Sicydium_COI_seqs1 <- entrez_fetch(db = "nuccore", id = Sicydium_COI_search$ids[0:295], rettype = "fasta")
 Sicydium_COI_seqs2 <- entrez_fetch(db = "nuccore", id = Sicydium_COI_search$ids[296:580], rettype = "fasta")
-
 # GETTING OUTGROUP SEQUENCES OF AWAOUS BANANA (2) AND A. OCELLARIS (2)
-
 Awaous_bananaCOI <- "Awaous_banana[Organism] AND COI[Gene]"
 Awaous_bananaCOI_search <- entrez_search(db = "nuccore", term = Awaous_bananaCOI, retmax = 2)
 Awaous_bananaCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_bananaCOI_search$ids, rettype = "fasta")
-
 Awaous_ocellarisCOI <- "Awaous_ocellaris[Organism] AND COI[Gene]"
 Awaous_ocellarisCOI_search <- entrez_search(db = "nuccore", term = Awaous_ocellarisCOI, retmax = 4)
-Awaous_ocellarisCOI_seqs <- entrez_fetch(db = "nuccore",
-                                         id = Awaous_ocellarisCOI_search$ids, rettype = "fasta")
-
+Awaous_ocellarisCOI_seqs <- entrez_fetch(db = "nuccore", id = Awaous_ocellarisCOI_search$ids, rettype = "fasta")
 # storing ALL sequences in a single fasta file
 write(Sicydium_COI_seqs1, here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n")
 # 'append = TRUE', I can keep adding seqs
-write(Sicydium_COI_seqs2,
-      here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)   
-write(Awaous_bananaCOI_seqs,
-      here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)
-write(Awaous_ocellarisCOI_seqs,
-      here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)
-
+write(Sicydium_COI_seqs2, here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)   
+write(Awaous_bananaCOI_seqs, here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)
+write(Awaous_ocellarisCOI_seqs, here(file="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), sep = "\n", append = TRUE)
 
 ```
 
 
-```{r editingAPI, echo = TRUE}
-
+```{r editingAPI}
 # seqinr: package for sequence manipulation 
 # reading the file and renaming the sequences
-
-Sicydium_COI_seqinrFormat <- read.fasta(
-  here(file ="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"),
-  seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
-
-# editing species name
-Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name") 
-# eliminating characters after "." using gsub
-Sicydium_COI_names <- gsub("\\..*", "", Sicydium_COI_names)        
-# eliminating characters before "|" using gsub
-Sicydium_COI_names <- gsub("^.*\\|", "", Sicydium_COI_names)       
-
-# using library "ape" --- this line takes a few minutes to run
-Sicydium_COI_apeFormat <- read.GenBank(Sicydium_COI_names) 
-
+Sicydium_COI_seqinrFormat <- read.fasta(here(file ="analysis/data/raw_data/Sicydium_COI_1-seqs.fasta"), seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
+Sicydium_COI_names <- attr(Sicydium_COI_seqinrFormat, "name")      # editing species name
+Sicydium_COI_names <- gsub("\\..*", "", Sicydium_COI_names)        # eliminating characters after "." using gsub
+Sicydium_COI_names <- gsub("^.*\\|", "", Sicydium_COI_names)       # eliminating characters before "|" using gsub
+# using library "ape"
+Sicydium_COI_apeFormat <- read.GenBank(Sicydium_COI_names)         # this line takes a few minutes to run
 # creating a vector (to be added as name of the seqs) with the species, GenBank accession number, and type of gene
-Sicydium_COI_GenBank_Ids <- paste(attr(Sicydium_COI_apeFormat, "species"),
-                                  names(Sicydium_COI_apeFormat),
-                                  sep = "_COI_")
-
+Sicydium_COI_GenBank_Ids <- paste(attr(Sicydium_COI_apeFormat, "species"), names(Sicydium_COI_apeFormat), sep = "_COI_")
 # writing a new fasta file (2nd) using the vector above 
-write.fasta(sequences = Sicydium_COI_seqinrFormat,
-            names = Sicydium_COI_GenBank_Ids, nbchar = 10,
+write.fasta(sequences = Sicydium_COI_seqinrFormat, names = Sicydium_COI_GenBank_Ids, nbchar = 10,
             here(file.out = "analysis/data/raw_data/Sicydium_COI_2-seqinrFormat.fasta"))
-
-
                                      # EDITTING SEQS AND GETTING THEM ALL READY FOR THE PHYLOGENETIC ANALYSIS
-
 ### REMOVING sequences of incomplete/unspecific NAMES; that is, those with 'sp.'
 nameFasta <- read.fasta(here(file = "analysis/data/raw_data/Sicydium_COI_2-seqinrFormat.fasta"),
                         seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)
-
-fastaNames <- strsplit(names(nameFasta), '_')       # creating a vector splitting species names
-completeSeqs <- which(! grepl("sp.", fastaNames))   # selecting only those with specific name  
-
+fastaNames <- strsplit(names(nameFasta), '_')                  # creating a vector splitting species names
+completeSeqs <- which(! grepl("sp.", fastaNames))              # selecting only those with specific name in them  
 # writing a new fasta (3rd) file with only those seqs with full scientific names
 write.fasta(sequences = nameFasta[completeSeqs], names = names(nameFasta)[completeSeqs],
             here(file.out = "analysis/data/raw_data/Sicydium_COI_3-names.fasta"))
-
 ### REMOVING sequences of LENGTH shorter than 600 pb, given that the gene COI has between 627 and 658 bp.
 lengthFasta <- read.fasta(here(file = "analysis/data/raw_data/Sicydium_COI_3-names.fasta"),
                           seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE)     # 586 seqs
 fastaLength <- lengthFasta[which(getLength(lengthFasta) >= 600)]
-write.fasta(sequences = fastaLength,
-            names = names(fastaLength),
+write.fasta(sequences = fastaLength, names = names(fastaLength),
             here(file.out = "analysis/data/raw_data/Sicydium_COI_4-lengths.fasta"))             # 401 seqs
-
 ### Removing DUPLICATE sequences
 # using "seqinr" to do it 
 # for not using attributes to name sequences
 duplicatesFasta <- read.fasta(here("analysis/data/raw_data/Sicydium_COI_4-lengths.fasta"), set.attributes = FALSE) 
-
 seqnames <- names(duplicatesFasta)
 dups <- grep(TRUE,duplicated(duplicatesFasta))
 uniqueNames <- seqnames[-dups]
 uniqueSeqs <- duplicatesFasta[-dups] 
-
-write.fasta(sequences = uniqueSeqs,
-            names = uniqueNames,
+write.fasta(sequences = uniqueSeqs, names = uniqueNames,
             here(file.out = "analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"))               # 204 seqs
-
-# adding samples from Cuba (n=6)
-mySamples <- read.fasta(here("analysis/data/raw_data/Sicydium_COI_Cuba.fas"))
-write.fasta(mySamples,
-            names(mySamples),
-            here("analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"), open = "a")              # 210 seqs
-
+# adding samples from Cuba (n=9)
+mySamples <- read.fasta(here("analysis/data/raw_data/Sicydium_COI_Cuba_n=9.fas"))
+write.fasta(mySamples, names(mySamples), here("analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"), open = "a")              # 210 seqs
 
 ```
 
 
-```{r alignment, echo = TRUE}
+```{r alignment}
 invisible({capture.output({                ### ALIGNING the sequences        # libraries "msa" and "Biostrings"
-
-alignmentFasta <- readDNAStringSet(here(
-  "analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"))
+alignmentFasta <- readDNAStringSet(here("analysis/data/raw_data/Sicydium_COI_5-dupli.fasta"))
 set.seed(123)
 ClustalOAlignment <- msa(alignmentFasta, "ClustalOmega")
 # print(ClustalOAlignment, showConsensus=FALSE, showNames=TRUE, show="complete") 
-
 # Checking for the position of sequences that were not edited properly so they still have nucleotides different that A, G, C, T 
 nucType <- alphabetFrequency(ClustalOAlignment)
-unknownNuc <- nucType[, c(5:14)]  # only nucleotides that are not A, G, T, C, or N or gaps
+unknownNuc <- nucType[, c(5:14)]  # this subset only contains nucleotides that are not A, G, T, C, or N or gaps
 unknownPosition <- which(unknownNuc > 0, arr.ind=T)
-
 # REMOVING samples with too many GAPS at the beginning and the end of the sequences and UNKNOWN nucleotides (ex.: W, K, S) 
 colmask(ClustalOAlignment) <- IRanges(start=c(1,666),end=c(25,679))
 rowmask(ClustalOAlignment) <- IRanges(start=c(1),end=c(1))
 ClustalOAlignment2 <- as(ClustalOAlignment, "DNAStringSet")
-writeXStringSet(ClustalOAlignment2,
-                here("analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"))          # 209 seqs -- 640 bp
-
+writeXStringSet(ClustalOAlignment2, here(file="analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"))            # 209 seqs -- 640 bp
 ### Replacing gaps at the begining and end with Ns
-gapsFasta <- read.fasta(here(file = "analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"),
-                        seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE, apply.mask = FALSE)
+gapsFasta <- read.fasta(here(file = "analysis/data/raw_data/Sicydium_COI_6-alignment.fasta"), seqtype = "DNA", as.string = TRUE, forceDNAtolower = FALSE, apply.mask = FALSE)
 #getLength(gapsFasta)
 replacingGaps <- lapply(gapsFasta, function(x) gsub("-", "N", x))
-write.fasta(replacingGaps, names(replacingGaps),
-            here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta"))
-
+write.fasta(replacingGaps, names(replacingGaps), here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta"))
 })})
-
 ```
 
 
-```{r, getRF, warning = FALSE, echo = TRUE}
+```{r, getRF, warning = FALSE}
 invisible({capture.output({               ### GETTING the READING FRAME     --- library "systemPipeR"
                                           
 alignedFasta <- readDNAStringSet(here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta")) 
-
 getRF <- function(x){
   if (class(x)!= c("DNAStringSet")){
-    stop("This function only takes files of class 'DNAStringSet'.
-         Use package 'Biostrings' to read the input file")
+    stop("This function only takes files of class 'DNAStringSet'. Use package 'Biostrings' to read the input file")
   }
   if (any(letterFrequency(x, "-", as.prob=TRUE))>0){
-    stop("This function do not take gaps as values/strings.
-         Go and replaced gaps with Ns (if the gaps are at the begining
-         or end of the sequences)
-         or choose a subset of sequences that do not contain gaps")
+    stop("This function do not take gaps as values/strings. Go and replaced gaps with Ns (if the gaps are at the begining or end of the sequences) or choose a subset of sequences that do not contain gaps")
   }
-  orf1 <- predORF(x[1:10], n=1, type="df", mode="orf", strand="sense")
-  # predORF() do not read seqs with gaps
+  orf1 <- predORF(x[1:10], n=1, type="df", mode="orf", strand="sense")   # predORF() do not read seqs with gaps
   # predicts longest ORF for sense strand in each query sequence                                                                          
   longestSeq1 <- orf1$start[orf1$width == max(orf1$width)]
   codonPosition1 <- longestSeq1[1]/3
   codonConfirmation1 <- round(codonPosition1)                         # 640 bp
   if (codonPosition1==codonConfirmation1){
-   file.rename(here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta"),
-               here("analysis/data/raw_data/Sicydium_COI_newRF.fasta")) 
-  print("The Reading Frame of these seqs is +1, go to ModelTesting")
+   file.rename(here("analysis/data/raw_data/Sicydium_COI_7-gaps.fasta"), here("analysis/data/raw_data/Sicydium_COI_newRF.fasta")) 
+  print("The Reading Frame of these seqs is +1, no further action is required, go to modelTesting")
     } else {
     if (codonPosition1!=codonConfirmation1){
       tempLength <- length(x[[1]])
@@ -345,48 +283,36 @@ getRF <- function(x){
       codonPosition2 <- (longestSeq2[1]+2)/3
       codonConfirmation2 <- round(codonPosition2)
       if (codonPosition2==codonConfirmation2){
-        writeXStringSet(newRF2, 
-                        here("analysis/data/raw_data/Sicydium_COI_newRF.fasta"))                    
-      print("The Reading Frame of these seqs was +2,
-            new fasta file created, go to modelTesting")
+        writeXStringSet(newRF2, here(file="analysis/data/raw_data/Sicydium_COI_newRF.fasta"))                    
+      print("The Reading Frame of these seqs was +2, new fasta file created, go to modelTesting")
       } else {
       if (codonPosition2!=codonConfirmation2){
         #remove first nucleotide position
         tempLength <- length(x[[1]])
         newRF3 <- subseq(x, start = 3, end = tempLength)   # 638 bp
-        writeXStringSet(newRF3, 
-                        here("analysis/data/raw_data/Sicydium_COI_newRF.fasta"))                                
-      print("The Reading Frame of these seqs was +3,
-            new fasta file created, go to modelTesting")
+        writeXStringSet(newRF3, here(file="analysis/data/raw_data/Sicydium_COI_newRF.fasta"))                                
+      print("The Reading Frame of these seqs was +3, new fasta file created, go to modelTesting")
      }
    }  
   }
  }
 }
-
-
 suppressWarnings(suppressMessages(print(getRF(x = alignedFasta))))
-
 })})
-
-
 ```
 
-The nucleotide substitution model that best explained our data was estimated using the function modelTest from the R package *phangorn* [@schliep2011phangorn]. The phylogenetic tree was reconstructed following a maximum likelihood approach [@felsenstein1981evolutionary] using the functions optim.pml and bootstrap.pml, also from the package *phangorn*. The tree was edited and visualized using the R package *ggtree* [@yu2017ggtree].
+The nucleotide substitution model that best explained our data was inferred using the function modelTest from the R package *phangorn* [@schliep2011phangorn]. The phylogenetic tree was reconstructed following a maximum likelihood approach [@felsenstein1981evolutionary] using the functions optim.pml and bootstrap.pml, also from the package *phangorn*. The tree was edited and visualized using the R package *ggtree* [@yu2017ggtree]. Sequences of *Awaous banana* and *A. ocellaris* were used as outgroups. Genetic diversity (the number of haplotypes as well as haplotype and nucleotide diversity) was estimated using the package *pegas* [@paradis2010pegas].
 
-This paper was completely developed in RStudio, PBC (“RStudio”) [@rstudio2020]. R code and data are available as a research compendium for generating this paper in the following link: https://github.com/sheilarm23/rrcompendium.git.    
+All analyses and figures here were developed in RStudio, PBC (“RStudio”) [@rstudio2020]. R code and data are available as a research compendium in the following link: https://github.com/sheilarm23/rrcompendium.git.
 
-```{r getBestModel, warning = FALSE, echo = TRUE}
+
+```{r getBestModel, warning = FALSE}
                                       # FINDING THE BEST NUCLEOTIDE SUSBSTITUTION MODEL
-
 # libraries ape and phangorn (modelTest is a function of the package phangorn)
-
 fastaRF <- read.dna(here(file="analysis/data/raw_data/Sicydium_COI_newRF.fasta"), format = "fasta")
-
 getBestModel <- function(y){
   if (class(y)!= c("DNAbin")){
-    stop("This function only takes files of class 'DNAbin'.
-         Use package 'ape' to read the input file")
+    stop("This function only takes files of class 'DNAbin'. Use package 'ape' to read the input file")
   }
   formatPhyDat <- as.phyDat(y)                #getting the class used by modelTest: phyDat or pml
   set.seed(123)
@@ -395,111 +321,118 @@ getBestModel <- function(y){
   return(modelChoiceSorted)
 }
   
-bestModel <- suppressWarnings(suppressMessages(getBestModel(y = fastaRF)))
-
+bestModel <- suppressWarnings(suppressMessages(getBestModel(y = fastaRF)))               # getting the AICc for each competing model
 # DISCLAIMER: visually inspecting the AICc is better than just getting the best model automatically, because it allows to compares models with similar AICc and it is my personal opinion to choose the one with the least parameters.  
 # The alternative is to get automatically the first model that the data.frame modelTest gives and storing it as a variable. In order to get this as reproducible as possible, I chose the alternative.
-
-
 ```
 
-```{r tree, echo = TRUE, include=TRUE, results = 'hide', fig.show='hide', warning = FALSE}
 
+```{r tree, echo = FALSE, include=TRUE, results = 'hide', fig.show='hide', warning = FALSE}
                                                         # BUILINDG THE TREE
 # --- library: phangorn
 set.seed(123)
 env = attr(bestModel, "env")    # getting the AICc for each competing model sorted
 set.seed(123)
-# initial fit for the model chosen
-fitStart = eval(get(bestModel$Model[which.min(bestModel$AICc)], env), env)    
-
+fitStart = eval(get(bestModel$Model[which.min(bestModel$AICc)], env), env)    # initial fit for the model chosen
 set.seed(123)
 fit = suppressWarnings(optim.pml(fitStart, rearrangement = "stochastic", optGamma=TRUE, optInv=FALSE, model="HKY"))     # seeking a maximum likelihood solution
 set.seed(123)    # getting the same tree topology each time the code runs 
 bs = bootstrap.pml(fit, bs=100, optNni=TRUE, multicore=TRUE, mc.cores = 4)
-
 # saving the tree in the folder 'analysis/figures/'
 set.seed(123)
-# fit$tree is where the optimal tree is stored
-bsTree <- plotBS(midpoint(fit$tree), bs, p = 75, type="p", bs.col = "blue")     
-
+bsTree <- plotBS(midpoint(fit$tree), bs, p = 75, type="p", bs.col = "blue")     # fit$tree is where the optimal tree is stored
 set.seed(123)
 optimalTree <- plotBS(bsTree, type = "p", cex = 0.2, font = 1)
 # export tree with bootstrap values as node labels
 set.seed(123)
 write.tree(optimalTree, here(file="analysis/data/derived_data/Sicydium_ML_tree.tre"))  
 
-
 ```
 
 
-```{r loglikelihood, include = TRUE, results='hide', echo = TRUE}
+```{r loglikelihood, include = TRUE, results='hide'}
 # this result wont be displayed in the final document
 loglikelihood <- round(-1*(as.numeric(fit[1])), 2)
 
 ```
 
 
-```{r editingTree, echo = FALSE, echo = TRUE}
-
+```{r editingTree, echo = FALSE}
 # Editing and visualizing the tree to represent --- library: ggtree
 tree <- read.tree(here(file="analysis/data/derived_data/Sicydium_ML_tree.tre"))
-
 # checking that the tree is rooted
-# package ape. showing the tree root: geom_rootpoint(color="pink", size=5) 
-rootedTree <- is.rooted(tree)   
+rootedTree <- is.rooted(tree)   # package ape. showing the tree root: geom_rootpoint(color="pink", size=5) 
 # getting the node number for each main clade. This info is important because those #s are the one needed to edit each main clade/species
 set.seed(123)
-nodeNumber <- ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue", size = 1) # looks horrible but it gives the clade number
+nodeNumber <- ggtree(tree) + geom_text(aes(label=node), hjust=-.5, col = "blue", size = 1) # looks horrible but it gives the node number
+ 
+```
+
+
+```{r genetic diversity, echo = FALSE}
+# uses packages "pegas", which depends on "adegenet"
+
+diversityData <- read.dna(here("analysis/data/raw_data/Sicydium_COI_Cuba_n=9.fas"), format = "fasta")
+diversityToUse <- haplotype(diversityData)
+
+haploDiv <- round(hap.div(diversityToUse, variance = TRUE), 4)
+nucleDiv <- round(nuc.div(diversityToUse, variance = TRUE), 4)
+
+# to see the network: net <- haploNet(diversityToUse) and plot(net)
 
 ```
 
 # Results
 
-The final alignment comprised 209 sequences, each one of 639 base pairs. Figure \@ref(fig:fig2) depicts the ML tree (-lnL = `r loglikelihood`) showing the relationships among all COI sequences identified as *Sicydium* spp. available in GenBank. Six clades matching known *Sicydium* species were recovered with strong support. The phylogenetic reconstruction shows that the six samples from Cuba, highlighted in green, nested within *Sicydium buscki* Evermann & Clark, 1906.
+The final alignment included 212 sequences, each one of 639 base pairs. Figure \@ref(fig:SicydiumTree depicts the ML tree (-lnL = `r loglikelihood`) showing the relationships among all COI sequences identified as *Sicydium* spp. available from GenBank. Six clades corresponding to known *Sicydium* species were recovered with moderate to strong support. This phylogenetic reconstruction shows that the nine samples from Cuba, highlighted in green, nested within *Sicydium buscki* Evermann & Clark, 1906. Six haplotypes were identified from the Cuban samples, which showed high haplotype diversity (`r haploDiv[1]` ± `r haploDiv[2]`) and low nucleotide diversity (`r nucleDiv[1]` ± `r nucleDiv[2]`).
 
 
-```{r fig2, fig.width = 15, fig.height = 19, fig.cap=paste("ML phylogenetic tree (-lnL =", loglikelihood,") depicting the relationships among all available COI sequences of the genus *Sicydium*. Sequences highlited in green represent samples from Cuba. Numbers on branches represent boostrap values higher than 82."), echo = TRUE}
+```{r SicydiumTree, fig.width = 15, fig.height = 19, fig.cap=paste("Maximum likelihood phylogenetic tree (-lnL =", loglikelihood,") depicting the relationships among partial COI sequences of the genus *Sicydium*. Sequences highlighted in green represent samples from Cuba. Numbers on branches represent bootstrap values higher than 82.")}
 
 ggtree(tree, size = .8) + 
   xlim(-0.02, 0.26) +
   geom_treescale(x=0, y=-1.5, offset = -4, fontsize = 6, linesize = 0.8) + 
-  geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 82), size = 6, col= "black", vjust = -0.3, hjust=1.9, na.rm = FALSE) + 
+  geom_text2(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 82), size = 4, col= "black", vjust = -0.3, hjust=2.3, na.rm = FALSE) + 
   geom_nodepoint(aes(label=label, subset = !is.na(as.numeric(label)) & as.numeric(label) > 82), size = 2, col= "black") + 
-  geom_cladelabel(node=215, label="Sicydium plumieri", color="red", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=108, label="Sicydium brevifile", color="blue", hjust = -0.008, vjust = 0.8, fontsize = 6, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=408, label="Sicydium salvini", color="purple", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=320, label="Sicydium punctatum", color="brown", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=371, label="Sicydium buscki", color="black", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
-  geom_cladelabel(node=407, label="Sicydium crenilabrum", color="orange", hjust = -0.03, vjust = 0.1, fontsize = 6, offset = 0.004, fontface="italic") +
-  geom_cladelabel(node=211, label="Awaous spp.", color="darkgreen", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") +
+  geom_cladelabel(node=218, label="Sicydium plumieri", color="red", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=212, label="Sicydium brevifile", color="blue", hjust = -0.3, vjust = 0.08, fontsize = 6, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=320, label="Sicydium salvini", color="purple", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=330, label="Sicydium punctatum", color="brown", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=381, label="Sicydium buscki", color="black", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") + 
+  geom_cladelabel(node=328, label="Sicydium crenilabrum", color="orange", hjust = -0.001, vjust = 0.2, fontsize = 6, offset = 0.002, fontface="italic") +
+  geom_cladelabel(node=214, label="Awaous spp.", color="darkgreen", hjust = -0.07, fontsize = 6, offset = 0.002, fontface="italic") +
+  # samples Sicydium_COI_Cuba2,4,6 were nested within this clde but the distance is too short to be displayed in the tree
   geom_hilight(node=191, fill="green", alpha = 0.7, extend=.004) +
   geom_hilight(node=166, fill="green", alpha = 0.7, extend=.004) +
   geom_hilight(node=177, fill="green", alpha = 0.7, extend=.004) +
   geom_hilight(node=173, fill="green", alpha = 0.7, extend=.004) +
   geom_hilight(node=171, fill="green", alpha = 0.7, extend=.004) +
   geom_hilight(node=172, fill="green", alpha = 0.7, extend=.004) +
-  theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm")) 
+  theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"))
+rotate(tree_view = NULL, 329)
+# suppressWarnings(suppressMessages(print(Sicydium_ML_tree)))
+
+### Code to start working on Table 1
+ # Final version imported (and edited) as an external file (excel)
+
+### sicydiumTable <- setNames(data.frame(do.call(rbind, strsplit(as.character(nameTable$names.nameTable.), split="_"))), c("genus", "species", "gene", "accession number"))
+# nameTable: data.frame with the names of the sequences (all 212 seqs) got from the final fasta file (#7)
+# names.nameTable.: name of the only column of that df
 
 
 ```
 
 # Discussion
 
-When it comes to nature conservation, species identification is a basic principle: what cannot be identified, will not be protected or conserved. Any successful management plan or effort will critically rely on a correct identification of the taxa intended to protect. However, when taxonomic issues exist, molecular tools have proved to be of considerable help uncovering largely hidden diversity [*e.g.*, @ardura2010dna; @kress2015dna]. Cuban freshwater fishes are an excellent example of the importance of applying molecular tools to species conservation, where more than ten new lineages have been discovered in the last years [@lara2010dna; @garcia2011molecular; @de2014phylogeography]. Nevertheless, some groups remain poorly studied, which prevents us from implementing appropriate conservation programs. 
+In terms of nature conservation, species identification is a basic starting point: what cannot be identified cannot be protected or conserved. Any successful management plan or effort will rely on a correct identification of the taxon needing protection. However, when taxonomic issues exist, molecular tools have proved to be of considerable help uncovering hidden diversity [*e.g.*, @ardura2010dna; @kress2015dna]. Cuban freshwater fishes are an excellent example of the importance of applying molecular tools to species conservation: more than ten new lineages across three families have been discovered in the last ten years [@lara2010dna; @garcia2011molecular; @de2014phylogeography]. Nevertheless, some groups remain poorly studied, which has prevented the implementation of appropriate conservation programs.
 
-Freshwater gobies (Gobiiformes, Gobiidae) have been a neglected group of fishes in Cuba. In fact, most information about their diversity and ecology on the island is virtually unknown. What we do know is that given their migratory life cycle, they have been the target of an artisanal fishery based on the postlarvae returning to rivers. This fish fry fishery, known as “Teti” fishery, is only practiced in the easternmost part of the island, and it has been reported from four rivers: Duaba, Yumuri, Toa, and Miel. The main problem with "Tetis", as it has been mentioned in many other countries harvesting postlarvae, is that species (and genus)-level identification is almost impossible in the field.   
+Freshwater gobies (Gobiiformes: Gobiidae) have been a neglected group of fishes in Cuba and most information about their diversity and ecology on the island is virtually unknown. What we do know is that given their migratory life cycle, gobies have been the target of an artisanal fishery based on postlarvae returning to rivers on the easternmost part of the island. Our results suggest that Busck’s Goby, *Sicydium buscki*, is one of the species included in the “Tetí” fishery. *Sicydium buscki* is one of the four species of amphidromous goby reported in the Greater Antilles (@watson2000; @engmanetal2019; @eschmeyer2020catalog) and it may be that these other species (*S. gilberti*, *S. plumieri*, *S. punctatum*) are part of the “Tetí” fishery but without evidence supporting an alternative we must consider *S. buscki* as the primary candidate for the identity of this fishery. Information provided by local fishermen suggests that they harvest the fry mainly from four rivers: the Duaba, Yumurí, Toa, and Miel, during the last-quarter moon phase from August to October.
 
-Our results suggest that the “Teti” samples collected are *Sicydium buscki*. This is one of the four *Sicydium* species reported in the Caribbean islands [@eschmeyer2020catalog]. Although other species have been suggested to comprise this fishery in Cuba, this is the first report of any fish species based on molecular data. However, this study included a few samples from a single river. Other countries where fish fry fisheries also take place have reported several species of the order Gobiiformes [@castellanos2011goby; @asis2013first; @engman2019puerto]. Thus, additional surveys including more samples and rivers are needed to have a better idea, first of the diversity of gobies in Eastern Cuba, and second, of the fish diversity comprising the fish fry “Teti” fishery. Although harvest mainly occurs during the last-quarter moon phase from August to October [@tetiblogger2011], an increase in tourism in Cuba is leading to a higher demand for this natural resource. For this reason, further studies will contribute to our knowledge of Caribbean fish assemblages, which will allow us to better work toward their conservation and propose and develop effective management actions.   
-
-# Conclusion
-
-Busck´s Stone-Biting Goby, *Sicydium buscki*, is a component of the fish fry “teti” fishery in Eastern Cuba. This species represents the only taxa of the orden Gobiiformes confirmed by molecular tools as part of such a fishery.
-More thorough investigations and identification of the species comprising the “teti” fishery are needed. It is imperative to include them in  local management plans and to avoid overfishing this resource.
+Although other species have been mentioned as potentially being part of the “Tetí” fishery, this is the first report of any fish species being identified based on molecular data. Other countries where fish-fry fisheries also take place have reported more than one species of goby (Gobiidae) and/or sleeper making up the fishery (Eleotridae) [@castellanos2011goby; @asis2013first; @engman2019puerto]. Thus, additional surveys including more samples from different localities are needed to uncover the diversity of gobies in Eastern Cuba and the fish diversity comprising this particular fishery. An increase in tourism in Cuba, possibly leading to a higher demand for this natural resource, is a relatively new threat faced by the native fishes. They are also threatened by the introduction of exotic species, habitat fragmentation, and water pollution [@monitoreoCuba]. All this makes the present study a valuable tool providing basic information about the fish fauna of the region. More thorough investigations and identification of species comprising the “Tetí” fishery will allow us to better work toward their conservation and propose effective management actions.
 
 # Acknowledgements
 
-We thank the Habitat production team for their help during the field work. Sequencing was partially supported by a Smithsonian Tropical Research Institution Short-term Fellowship to SRM. In this sense, we thank advisement provided by Harilaos Lessios and the invaluable lab assistance of Eyda Gómez, Ligia and Axel Calderón. Additional lab work was also done with advice of Diego Elías. R code was developed with help of Tad Dallas, Heru Handika, and the community of Stack Overflow.   
+We thank the Habitat Production Team for their help during fieldwork. Sequencing was supported by a Smithsonian Tropical Research Institute (STRI) Short-Term Fellowship to SRM. We are thankful for the advice and support provided by Harilaos Lessios (STRI) and the valuable lab assistance of Eyda Gómez, Ligia Calderón, and Axel Calderón (STRI). We would also like to thank two anonymous reviewers who made useful suggestions that improved the manuscript. R code was developed with the help of Tad Dallas, Heru Handika, and the community at http://stackoverflow.com.    
 
 
 <!-- The following line inserts a page break  -->
@@ -527,5 +460,4 @@ The current Git commit details are:
 
 ```{r}
 # what commit is this file at? 
-if ("git2r" %in% installed.packages() & git2r::in_repository(path = ".")) git2r::repository(here::here())  
-```
+if ("git2r" %in% installed.packages() & git2r::in_repository(path = ".")) git2r::repository(here::here()) 
