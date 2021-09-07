@@ -2,7 +2,7 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.Rmd. PLEASE EDIT THE .Rmd FILE -->
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
@@ -11,28 +11,26 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 
-Title <- 'The Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern Cuba'
+Title <- 'Identity of fish fry from the "Teti" fishery in Eastern Cuba'
 
 ```
 
 # rrcompendium
 
-This repository contains the data and code for our future paper:
+This repository contains the data and code for our paper:
 
-> Rodriguez-Machado, S. and Rodríguez-Cabrera, T.M. (2020). _The Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern Cuba_.
-
-which is still a work in progress... 
+> Rodriguez-Machado, S., Rodríguez-Cabrera, T.M., and Prosanta Chakrabarty (2021). _Identity of fish fry from the "Teti" fishery in Eastern Cuba_.
 
 Our pre-print will be online here:
 
-> Rodriguez-Machado, S. and Rodríguez-Cabrera, T.M. (2020). _The Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern Cuba_. Name of journal/book, Accessed `r format(Sys.Date(), "%d %b %Y")`. 
+> Rodriguez-Machado, S., Rodríguez-Cabrera, T.M., and Prosanta Chakrabarty (2021). _Identity of fish fry from the "Teti" fishery in Eastern Cuba_. Caribbean Journal of Science, Accessed `r format(Sys.Date(), "%d %b %Y")`. 
 
 
 ### How to cite
 
 Please cite this compendium as:
 
-> Rodriguez-Machado, S. (`r format(Sys.Date(), "%Y")`). _Compendium of R code and data for `The Truth is Revealed: Identity of the Fish Fry "Teti" Fishery in Eastern Cuba`_. Accessed `r format(Sys.Date(), "%d %b %Y")`. 
+> Rodriguez-Machado, S. (`r format(Sys.Date(), "%Y")`). _Compendium of R code and data for `Identity of fish fry from the "Teti" fishery in Eastern Cuba`_. Accessed `r format(Sys.Date(), "%d %b %Y")`. 
 
 ## Contents
 
@@ -47,6 +45,10 @@ The **analysis** directory contains:
   - [:file\_folder: figures](/analysis/figures): Plots and other
     illustrations
   - [:file\_folder: templates](/analysis/templates): Style of citations and reference list
+
+## Before starting:
+
+This compendium was created BEFORE the sequences from Cuba were submitted to GenBank. For this reason, make sure those sequences are removed after downloading them from GenBank (package entrez). Otherwise, the ML tree will include 18 samples from Cuba (9 from data/raw_data/ plus 9 from GenBank) instead of the original 9 samples. 
 
 ## How to download and run locally
 
