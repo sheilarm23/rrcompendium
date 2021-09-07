@@ -14,10 +14,10 @@ library(ape)
 library(phangorn)
 #library(systemPipeR)
 
-knitr::knit('R/myFunctions.R', tangle=TRUE)
-source('R/myFunctions.R')
+knitr::knit('analysis/paper/paper.Rmd', tangle=TRUE)
+source('paper.R')
 
 testthat::test_file('tests/testthat/test-getRF.R')
 testthat::test_file('tests/testthat/test-getBestModel.R')
 
-#system('rm R/myFunctions.R')
+system('rm paper.R')
