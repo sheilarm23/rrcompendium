@@ -1,36 +1,27 @@
----
-output: github_document
----
 
 <!-- README.md is generated from README.Rmd. PLEASE EDIT THE .Rmd FILE -->
-
-```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "README-"
-)
-
-Title <- 'Identity of fish fry from the "Teti" fishery in Eastern Cuba'
-
-```
 
 # rrcompendium
 
 This repository contains the data and code for our paper:
 
-> Rodriguez-Machado, S., Rodríguez-Cabrera, T.M., and Prosanta Chakrabarty (2021). _Identity of fish fry from the "Teti" fishery in Eastern Cuba_.
+> Rodriguez-Machado, S., Rodríguez-Cabrera, T.M., and Prosanta
+> Chakrabarty (2021). *Identity of fish fry from the “Teti” fishery in
+> Eastern Cuba*.
 
 Our pre-print will be online here:
 
-> Rodriguez-Machado, S., Rodríguez-Cabrera, T.M., and Prosanta Chakrabarty (2021). _Identity of fish fry from the "Teti" fishery in Eastern Cuba_. Caribbean Journal of Science, Accessed `r format(Sys.Date(), "%d %b %Y")`. 
-
+> Rodriguez-Machado, S., Rodríguez-Cabrera, T.M., and Prosanta
+> Chakrabarty (2021). *Identity of fish fry from the “Teti” fishery in
+> Eastern Cuba*. Caribbean Journal of Science, Accessed 07 Sep 2021.
 
 ### How to cite
 
 Please cite this compendium as:
 
-> Rodriguez-Machado, S. (`r format(Sys.Date(), "%Y")`). _Compendium of R code and data for `Identity of fish fry from the "Teti" fishery in Eastern Cuba`_. Accessed `r format(Sys.Date(), "%d %b %Y")`. 
+> Rodriguez-Machado, S. (2021). *Compendium of R code and data for
+> `Identity of fish fry from the "Teti" fishery in Eastern Cuba`*.
+> Accessed 07 Sep 2021.
 
 ## Contents
 
@@ -44,38 +35,52 @@ The **analysis** directory contains:
   - [:file\_folder: data](/analysis/data): Data used in the analysis.
   - [:file\_folder: figures](/analysis/figures): Plots and other
     illustrations
-  - [:file\_folder: templates](/analysis/templates): Style of citations and reference list
+  - [:file\_folder: templates](/analysis/templates): Style of citations
+    and reference list
 
 ## Before starting:
 
-This compendium was created BEFORE the sequences from Cuba were submitted to GenBank. For this reason, make sure those sequences are removed after downloading them from GenBank (package entrez). Otherwise, the ML tree will include 18 samples from Cuba (9 from data/raw_data/ plus 9 from GenBank) instead of the original 9 samples. 
+This compendium was created BEFORE the sequences from Cuba were
+submitted to GenBank. For this reason, make sure those sequences are
+removed after downloading them from GenBank (package entrez). Otherwise,
+the ML tree will include 18 samples from Cuba (9 from data/raw\_data/
+plus 9 from GenBank) instead of the original 9 samples.
 
 ## How to download and run locally
 
-This research compendium has been developed using the statistical programming
-language R. To work with the compendium, you will need
-installed on your computer the [R software](https://cloud.r-project.org/)
-itself and optionally [RStudio Desktop](https://rstudio.com/products/rstudio/download/).
+This research compendium has been developed using the statistical
+programming language R. To work with the compendium, you will need
+installed on your computer the [R
+software](https://cloud.r-project.org/) itself and optionally [RStudio
+Desktop](https://rstudio.com/products/rstudio/download/).
 
 You can download the compendium as a zip from from this URL:
-[master.zip](https://github.com/sheilarm23/rrcompendium/archive/master.zip). After unzipping:
-- open the `.Rproj` file in RStudio
-- run `devtools::install()` to ensure you have the packages this analysis depends on (also listed in the
-[DESCRIPTION](/DESCRIPTION) file).
-- finally, open `analysis/paper/paper.Rmd` and knit to produce the `paper.pdf`, or run `rmarkdown::render("analysis/paper/paper.Rmd")` in the R console
+[master.zip](https://github.com/sheilarm23/rrcompendium/archive/master.zip).
+After unzipping: - open the `.Rproj` file in RStudio - run
+`devtools::install()` to ensure you have the packages this analysis
+depends on (also listed in the [DESCRIPTION](/DESCRIPTION) file). -
+finally, open `analysis/paper/paper.Rmd` and knit to produce the
+`paper.pdf`, or run `rmarkdown::render("analysis/paper/paper.Rmd")` in
+the R console
 
-MAKEFILE:
-Whatever option you choose to explore, and run, this compendium, you can also use the makefile (`/analysis/makefile`) in the terminal (`make all`) to compile the .docx document and then, you can use `make clean` to remove all files generated during the process. 
+MAKEFILE: Whatever option you choose to explore, and run, this
+compendium, you can also use the makefile (`/analysis/makefile`) in the
+terminal (`make all`) to compile the .docx document and then, you can
+use `make clean` to remove all files generated during the process.
 
 ### Licenses
 
-**Text and figures :**  [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+**Text and figures :**
+[CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
 
 **Code :** See the [DESCRIPTION](DESCRIPTION) file
 
-**Data :** [CC-0](http://creativecommons.org/publicdomain/zero/1.0/) attribution requested in reuse
+**Data :** [CC-0](http://creativecommons.org/publicdomain/zero/1.0/)
+attribution requested in reuse
 
 ### Contributions
 
-We welcome contributions from everyone. Before you get started, please see our [contributor guidelines](CONTRIBUTING.md). Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
-
+We welcome contributions from everyone. Before you get started, please
+see our [contributor guidelines](CONTRIBUTING.md). Please note that this
+project is released with a [Contributor Code of Conduct](CONDUCT.md). By
+participating in this project you agree to abide by its terms.
