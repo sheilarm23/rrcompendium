@@ -62,7 +62,8 @@ knitr::opts_chunk$set(
 # INSTALLING PACKAGES AND LIBRARIES - if needed
 packages = c("BiocManager", "raster", "ggplot2", "ggthemes", "mapproj", "here",  
              "rentrez", "ape", "seqinr", "phangorn",
-             "adegenet", "pegas")
+             "adegenet", "pegas",
+             "knitr")
 package.check <- lapply(packages, FUN = function(x) {
     if (!require(x, character.only = TRUE)) {
       install.packages(x, dependencies = TRUE)
@@ -89,11 +90,11 @@ package.Bioconductor <- lapply(packagesBioconductor, FUN = function(y) {
 
 # Introduction
 
-The family Gobiidae includes almost 2,000 species of marine, freshwater, and brackish water fishes worldwide [@eschmeyer2020catalog]. This group is mostly represented by small and bottom-dwelling fishes found in tropical and subtropical waters. Their small size along with cryptic body colors and the paucity of clear diagnostic characters to distinguish among taxa is a substantial challenge. However, the use of molecular tools applied to species-level identification has shed light on the taxonomy of these fishes [@keith2011phylogeny; @thacker2011phylogeny; @victor2014three; @kuang2018phylogenomic] and in the last ten years, more than one hundred gobiid species have been described [@eschmeyer2020catalog].
+The family Gobiidae includes almost 2,000 species of marine, freshwater, and brackish water fishes worldwide [@eschmeyer2020catalog]. This group is mostly represented by small and bottom-dwelling fishes found in tropical and subtropical waters. Their small size along with cryptic body colors and the paucity of clear diagnostic characters to distinguish among taxa is a substantial challenge. However, the use of molecular tools applied to species-level identification has shed light on the taxonomy of these fishes [@thacker2011phylogeny; @victor2014three; @keith2017schismatogobius; @kuang2018phylogenomic] and in the last ten years, more than one hundred gobiid species have been described [@eschmeyer2020catalog].
 
-Although most gobies inhabit marine ecosystems, some species inhabiting freshwater or estuarine ecosystems display an amphidromous lifecycle [@myers1949usage; @bell1999overview]: meaning that adults spawn in freshwater and the post-hatch larvae are carried downstream by rivers into the ocean. After spending weeks to months (depending on the species) in these marine habitats, postlarval stage individuals return to rivers. This period of postlarval return is particularly fascinating because million of them gather at the river mouth before starting their journey upstream. This migratory behavior supports artisanal fisheries worldwide [@bell1999overview; @mcdowall2007amphidromy]. Goby-fry fisheries are common practice in several countries in the Indo-Pacific [@asis2013first], the Pacific [@castellanos2011goby], and the Caribbean (@erdman1961notes; @kwaketal2016). One problem with this style of fishery is that insufficient management has led to a considerable reduction in catch [@bell1999overview]. In addition, information on the identity of the species comprising these goby-fry fisheries is still incomplete in many places [@castellanos2011goby; @asis2013first].
+Although most gobies inhabit marine ecosystems, some species inhabiting freshwater or estuarine ecosystems display an amphidromous lifecycle [@myers1949usage; @bell1999overview]: meaning that adults spawn in freshwater and the post-hatch larvae are carried downstream by rivers into the ocean. After spending weeks to months (depending on the species) in these marine habitats, postlarval stage individuals return to rivers. This period of postlarval return is particularly fascinating because million of them gather at the river mouth before starting their journey upstream. This migratory behavior supports artisanal fisheries worldwide [@bell1999overview; @mcdowall2007amphidromy]. Goby-fry fisheries are common practice in several countries in the Indo-Pacific [@asis2013first], the Pacific [@castellanos2011goby], and the Caribbean [@erdman1961notes; @kwaketal2016]. One problem with this style of fishery is that insufficient management has led to a considerable reduction in catch [@bell1999overview]. In addition, information on the identity of the species comprising these goby-fry fisheries is still incomplete in many places [@castellanos2011goby; @asis2013first].
 
-Gobies have been poorly studied in Cuba and available information on their identification and distribution is not conclusive [@lara2010dna]. The fish-fry “Tetí” fishery in Eastern Cuba represents a local artisanal fishery and there is no scientific information about the exploitation of this natural resource outside of the region. Based on other reports from the Caribbean (*e.g.*, @watson2000), some authors have claimed that the gobies *Sicydium plumieri* and *Sicydium punctatum* make up the “Tetí” fishery in Cuba, but evidence for those identications are lacking. “Tetí” has been historically exploited as the main ingredient of “traditional and exotic” dishes [@pichardoytapia1862; A. Hartman, pers. comm., August 01, 2011). However, recent changes to Cuban economic policies have promoted considerable growth in tourism [@rutty2019tourism], leading to increased fisheries pressure. Annual data series show increases in the number of visitors and infrastructure development in Baracoa [@baracoaStats2015; @baracoaStats2019], where this fishery takes place. Such actions along with the lack of fishing statistics might represent a threat to the conservation of these fish. This study aims to identify fish-fry species involved in the “Tetí” fishery in Eastern Cuba using molecular data.
+Gobies have been poorly studied in Cuba and available information on their identification and distribution is not conclusive [@lara2010dna]. The fish-fry “Tetí” fishery in Eastern Cuba represents a local artisanal fishery and there is no scientific information about the exploitation of this natural resource outside of the region. Based on other reports from the Caribbean [*e.g.*, @watson2000], some authors have claimed that the gobies *Sicydium plumieri* and *Sicydium punctatum* make up the “Tetí” fishery in Cuba, but evidence for those identications are lacking. “Tetí” has been historically exploited as the main ingredient of “traditional and exotic” dishes [@pichardoytapia1862; A. Hartman, pers. comm., August 01, 2011]. However, recent changes to Cuban economic policies have promoted considerable growth in tourism [@rutty2019tourism], leading to increased fisheries pressure. Annual data series show increases in the number of visitors and infrastructure development in Baracoa [@baracoaStats2015; @baracoaStats2019], where this fishery takes place. Such actions along with the lack of fishing statistics might represent a threat to the conservation of these fish. This study aims to identify fish-fry species involved in the “Tetí” fishery in Eastern Cuba using molecular data.
 
 # Methods
 
@@ -101,6 +102,7 @@ Nine “Tetís” (19–28 mm standard length) (Figure \@ref(fig:tetiPhoto)) wer
 
 
 ```{r tetiPhoto, fig.cap="Lateral view of goby fry “Tetí” captured in Río Yumurí, Cuba. Photo by Tomás M. Rodríguez-Cabrera."}
+knitr::include_graphics("analysis/figures/Fig1_Rodriguez-Machado2.jpg")
 
 ```
 
@@ -151,9 +153,9 @@ mainMap +
 
 Total DNA was extracted from caudal peduncle muscle tissues using the DNeasy tissue kit (QIAGEN). Partial sequences of the mitochondrial gene cytochrome oxidase I (COI) were amplified through the polymerase chain reaction in 20 μL of reaction volume (one unit of GoTaq DNA polymerase-Promega, 0.2 nM of each primer, 0.2 μM dNTPs, and 1.5 mM MgCl2) [@lara2010dna]. We used the primers COIf (5´-AAYCAYAAAGAYGGYACCCT-3´) and COIr (3´-CCTCNGGRTGNCCRAAGAAYCA-5´) [@palumbi1991simple].
 
-PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affymetrix Inc./ USB, Cleveland, OH, USA), and then sequenced on an ABI 3100 automated sequencer (Applied Biosystems). Raw sequence files were edited and aligned with the software Geneious v.9.1 [@kearse2012geneious] and submitted to GenBank (accession numbers: MZ848370– MZ848378). We used a standard nucleotide BLAST (BLASTN 2.11.0; @zhang2000greedy), optimized for highly similar sequences (MegaBLAST; @morgulis2008database) (Query IDs: 1237–1245), and recovered the identity of the Cuban sequences with 99–100% identity.
+PCR products were purified using ExoSAP-IT™ PCR Product Cleanup Reagent (Affymetrix Inc./ USB, Cleveland, OH, USA), and then sequenced on an ABI 3100 automated sequencer (Applied Biosystems). Raw sequence files were edited and aligned with the software Geneious v.9.1 [@kearse2012geneious] and submitted to GenBank (accession numbers: MZ848370– MZ848378). We used a standard nucleotide BLAST [BLASTN 2.11.0; @zhang2000greedy], optimized for highly similar sequences [MegaBLAST; @morgulis2008database] (Query IDs: 1237–1245), and recovered the identity of the Cuban sequences with 99–100% identity.
 
-We also aimed to recover the phylogenetic position of the fish-fry samples. For this analysis, all non-Cuban sequences were retrieved from GenBank using the R package *rentrez* [@winter2017rentrez] (Appendix 1). Duplicated sequences and sequences with missing data were excluded. The dataset was edited and aligned using the R packages *seqinr* [@charif2007seqinr], *ape* [@paradis2015package], and *Biostrings* [@pages2013package]. The final alignment was obtained with the algorithm ClustalOmega [@sievers2011fast] using the R package *msa* [@bodenhofer2015msa].
+We also aimed to recover the phylogenetic position of the fish-fry samples. For this analysis, all non-Cuban sequences were retrieved from GenBank using the R package *rentrez* [@winter2017rentrez] (Appendix 1). Duplicated sequences and sequences with missing data were excluded. The dataset was edited and aligned using the R packages *seqinr* [@charif2007seqinr], *ape* [@paradis2019ape], and *Biostrings* [@pages2013package]. The final alignment was obtained with the algorithm ClustalOmega [@sievers2011fast] using the R package *msa* [@bodenhofer2015msa].
 
 
 ```{r gettingAPI}
@@ -426,7 +428,7 @@ rotate(tree_view = NULL, 329)
 
 In terms of nature conservation, species identification is a basic starting point: what cannot be identified cannot be protected or conserved. Any successful management plan or effort will rely on a correct identification of the taxon needing protection. However, when taxonomic issues exist, molecular tools have proved to be of considerable help uncovering hidden diversity [*e.g.*, @ardura2010dna; @kress2015dna]. Cuban freshwater fishes are an excellent example of the importance of applying molecular tools to species conservation: more than ten new lineages across three families have been discovered in the last ten years [@lara2010dna; @garcia2011molecular; @de2014phylogeography]. Nevertheless, some groups remain poorly studied, which has prevented the implementation of appropriate conservation programs.
 
-Freshwater gobies (Gobiiformes: Gobiidae) have been a neglected group of fishes in Cuba and most information about their diversity and ecology on the island is virtually unknown. What we do know is that given their migratory life cycle, gobies have been the target of an artisanal fishery based on postlarvae returning to rivers on the easternmost part of the island. Our results suggest that Busck’s Goby, *Sicydium buscki*, is one of the species included in the “Tetí” fishery. *Sicydium buscki* is one of the four species of amphidromous goby reported in the Greater Antilles (@watson2000; @engmanetal2019; @eschmeyer2020catalog) and it may be that these other species (*S. gilberti*, *S. plumieri*, *S. punctatum*) are part of the “Tetí” fishery but without evidence supporting an alternative we must consider *S. buscki* as the primary candidate for the identity of this fishery. Information provided by local fishermen suggests that they harvest the fry mainly from four rivers: the Duaba, Yumurí, Toa, and Miel, during the last-quarter moon phase from August to October.
+Freshwater gobies (Gobiiformes: Gobiidae) have been a neglected group of fishes in Cuba and most information about their diversity and ecology on the island is virtually unknown. What we do know is that given their migratory life cycle, gobies have been the target of an artisanal fishery based on postlarvae returning to rivers on the easternmost part of the island. Our results suggest that Busck’s Goby, *Sicydium buscki*, is one of the species included in the “Tetí” fishery. *Sicydium buscki* is one of the four species of amphidromous goby reported in the Greater Antilles [@watson2000; @engman2019puerto; @eschmeyer2020catalog] and it may be that these other species (*S. gilberti*, *S. plumieri*, *S. punctatum*) are part of the “Tetí” fishery but without evidence supporting an alternative we must consider *S. buscki* as the primary candidate for the identity of this fishery. Information provided by local fishermen suggests that they harvest the fry mainly from four rivers: the Duaba, Yumurí, Toa, and Miel, during the last-quarter moon phase from August to October.
 
 Although other species have been mentioned as potentially being part of the “Tetí” fishery, this is the first report of any fish species being identified based on molecular data. Other countries where fish-fry fisheries also take place have reported more than one species of goby (Gobiidae) and/or sleeper making up the fishery (Eleotridae) [@castellanos2011goby; @asis2013first; @engman2019puerto]. Thus, additional surveys including more samples from different localities are needed to uncover the diversity of gobies in Eastern Cuba and the fish diversity comprising this particular fishery. An increase in tourism in Cuba, possibly leading to a higher demand for this natural resource, is a relatively new threat faced by the native fishes. They are also threatened by the introduction of exotic species, habitat fragmentation, and water pollution [@monitoreoCuba2017peces]. All this makes the present study a valuable tool providing basic information about the fish fauna of the region. More thorough investigations and identification of species comprising the “Tetí” fishery will allow us to better work toward their conservation and propose effective management actions.
 
@@ -444,6 +446,24 @@ We thank the Habitat Production Team for their help during fieldwork. Sequencing
 <!-- The following line ensures the references appear here for the MS Word or HTML output files, rather than right at the end of the document (this will not work for PDF files):  -->
 
 <div id="refs"></div>
+
+\newpage
+
+## Appendix
+
+```{r appendix, echo = FALSE}
+
+# This sections requires packages here and knitr [library(here), library(knitr)]
+
+appendixCSV <- read.csv(here("/analysis/data/derived_data/Appendix_Rodriguez-Machado_et_al.csv"))
+
+appendixDF <- data.frame(lapply(appendixCSV, function(x) {gsub("_", " ", x)}))
+
+knitr::kable(appendixDF, caption = "Appendix 1. Species, localities, and accession number information of the COI sequences included in this study. All sequences were retrieved from GenBank. References were included when locality information is not available on GenBank. N: total number of sequences per species.")
+
+```
+
+<!-- The following line inserts a page break  -->
 
 \newpage
 
